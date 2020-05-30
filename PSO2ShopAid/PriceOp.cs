@@ -17,5 +17,10 @@ namespace PSO2ShopAid
         {
             return new Price(a.RawPrice + b.RawPrice);
         }
+
+        public static float PercentChange(this Price curr, Price orig)
+        {
+            return (curr.RawPrice - orig.RawPrice) / orig.RawPrice * 100;
+        }
     }
 }
