@@ -22,6 +22,12 @@ namespace PSO2ShopAid
             PurchasePrice = price;
         }
 
+        public Investment(Price price)
+        {
+            PurchaseDate = DateTime.Now;
+            PurchasePrice = price;
+        }
+
         public void Sell(DateTime date, Price price)
         {
             SellDate = date;
