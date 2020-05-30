@@ -9,31 +9,31 @@ namespace PSO2ShopAid
 {
     public class Price
     {
-        private long rawValue;
-        private Tuple<long, PriceSuffix> priceK;
-        private Tuple<long, PriceSuffix> priceM;
+        public float RawPrice { get; }
+        private Tuple<float, PriceSuffix> priceK;
+        private Tuple<float, PriceSuffix> priceM;
 
-        public Price(long rawNum)
+        public Price(float rawNum)
         {
-            rawValue = rawNum;
+            RawPrice = rawNum;
             priceK = GetShortPrice(rawNum, PriceSuffix.k);
             priceM = GetShortPrice(rawNum, PriceSuffix.m);
         }
 
-        public Price(long num, PriceSuffix suffix)
+        public Price(float num, PriceSuffix suffix)
         {
-            rawValue = GetRawPrice(num, suffix);
-            priceK = GetShortPrice(rawValue, PriceSuffix.k);
-            priceM = GetShortPrice(rawValue, PriceSuffix.m);
+            RawPrice = GetRawPrice(num, suffix);
+            priceK = GetShortPrice(RawPrice, PriceSuffix.k);
+            priceM = GetShortPrice(RawPrice, PriceSuffix.m);
         }
 
-        public Tuple<long, PriceSuffix> GetShortPrice(long rawNum, PriceSuffix suffix)
+        private Tuple<float, PriceSuffix> GetShortPrice(float rawNum, PriceSuffix suffix)
         {
-            long value = rawNum / 1000;
-            return new Tuple<long, PriceSuffix>(value, suffix);
+            float value = rawNum / 1000;
+            return new Tuple<float, PriceSuffix>(value, suffix);
         }
 
-        public long GetRawPrice(long num, PriceSuffix suffix)
+        private float GetRawPrice(float num, PriceSuffix suffix)
         {
             return suffix.Equals(PriceSuffix.k) ? num * 1000 : num * 1000000;
         }
