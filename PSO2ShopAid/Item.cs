@@ -78,6 +78,27 @@ namespace PSO2ShopAid
             }
         }
 
+        public Tuple<Price, DateTime> LatestPrice
+        {
+            get
+            {
+                Price price = new Price(0);
+                DateTime date = default;
+
+                foreach (Encounter log in Encounters)
+                {
+                    if (log.date > date)
+                    {
+                        price = log.price;
+                        date = log.date;
+                    }
+                }
+
+                return new Tuple<Price, DateTime>(price, date);
+            }
+        }
+
+
         public SortedDictionary<DateTime, Price> GetAllPriceRecords()
         {
             SortedDictionary<DateTime, Price> records = new SortedDictionary<DateTime, Price>();
