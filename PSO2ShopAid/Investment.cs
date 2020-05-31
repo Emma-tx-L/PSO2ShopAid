@@ -13,10 +13,10 @@ namespace PSO2ShopAid
         public Price PurchasePrice { get; set; }
         public DateTime SellDate { get; set; }
         public Price SellPrice { get; set; }
-        public bool IsSold { get { return SellPrice != null; } }
+        public bool IsSold { get { return SellPrice != null && SellDate != null; } }
 
 
-        public Investment(DateTime date, Price price)
+        public Investment(Price price, DateTime date)
         {
             PurchaseDate = date;
             PurchasePrice = price;
@@ -28,9 +28,15 @@ namespace PSO2ShopAid
             PurchasePrice = price;
         }
 
-        public void Sell(DateTime date, Price price)
+        public void Sell(Price price, DateTime date)
         {
             SellDate = date;
+            SellPrice = price;
+        }
+
+        public void Sell(Price price)
+        {
+            SellDate = DateTime.Now;
             SellPrice = price;
         }
 
@@ -56,7 +62,7 @@ namespace PSO2ShopAid
 
         public TimeSpan FlipTime()
         {
-            if (SellDate == null)
+            if (!IsSold)
             {
                 return new TimeSpan(0);
             }

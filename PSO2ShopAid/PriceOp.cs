@@ -22,5 +22,22 @@ namespace PSO2ShopAid
         {
             return (curr.RawPrice - orig.RawPrice) / orig.RawPrice * 100;
         }
+
+        public static Price Average(this IEnumerable<Price> prices)
+        {
+            float count = prices.Count();
+            if (count == 0)
+            {
+                return new Price(0);
+            }
+
+            float sum = 0;
+            foreach (Price price in prices)
+            {
+                sum += price.RawPrice;
+            }
+
+            return new Price(sum / count);
+        }
     }
 }
