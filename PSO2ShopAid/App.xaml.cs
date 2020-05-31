@@ -13,5 +13,9 @@ namespace PSO2ShopAid
     /// </summary>
     public partial class App : Application
     {
+        void Application_Exit(object sender, ExitEventArgs e)
+        {
+            DataManager.SaveItems();
+        }
     }
 }

@@ -78,7 +78,7 @@ namespace PSO2ShopAid
             }
         }
 
-        public Tuple<Price, DateTime> LatestPrice
+        public Tuple<Price, DateTime> LatestEncounter
         {
             get
             {
@@ -95,6 +95,27 @@ namespace PSO2ShopAid
                 }
 
                 return new Tuple<Price, DateTime>(price, date);
+            }
+        }
+
+        public Price LatestPrice
+        {
+            get
+            {
+                return LatestEncounter.Item1;
+            }
+        }
+
+        public TimeSpan TimeSinceUpdate
+        {
+            get
+            {
+                if (LatestEncounter.Item2 == default)
+                {
+                    return new TimeSpan(0);
+                }
+
+                return DateTime.Now.Subtract(LatestEncounter.Item2);
             }
         }
 
