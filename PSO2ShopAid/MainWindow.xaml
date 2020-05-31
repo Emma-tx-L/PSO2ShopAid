@@ -3,11 +3,116 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:PSO2ShopAid"
         mc:Ignorable="d"
-        Title="PSO2 Shop Aid" Height="450" Width="800">
-
-    <Border Margin="10">
+        Title="PSO2 Shop Aid" Height="500" Width="800">
+    <Window.Resources>
+        <!-- Converters -->
+        <local:PriceConverter x:Key="PriceConverter" />
+        <local:TimeSinceConverter x:Key="TimeSinceConverter" />
         
+        <!-- Styles -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontFamily" Value="Ink Free"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontFamily" Value="Ink Free"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontFamily" Value="Ink Free"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="#35138a" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </Window.Resources>
+    
+    
+    <Border Margin="10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid  Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Tracked Items List -->
+                <ListBox Grid.Row="0" ItemsSource="{Binding Items}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="6"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <!-- Item Card Template -->
+                            <Border BorderBrush="{Binding Colour}" BorderThickness="3">
+                                <Grid Width="350" Background="#363636">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Rectangle Grid.Column="0" Grid.RowSpan="2" Fill="{Binding Colour}"></Rectangle>
+                                    <TextBlock Text="{Binding NameEN}" FontFamily="Ink Free" FontSize="16" VerticalAlignment="Center" Margin="10 5" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Foreground="#ffffff"/>
+                                    <TextBlock Text="{Binding LatestPrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.RowSpan="2" FontFamily="Ink Free" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 5 10" TextWrapping="Wrap" FontWeight="Bold" Foreground="#ff5e5e"/>
+                                    <TextBlock Text="{Binding AveragePrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                    <TextBlock Text="{Binding TimeSinceUpdate, Converter={StaticResource TimeSinceConverter}}" Grid.Column="1" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+
+                                </Grid>
+                            </Border>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <DockPanel Grid.Row="1">
+                    <xctk:ColorPicker Name="NewItem_Colour" Height="30" Width="50"  DockPanel.Dock="Left"/>
+                    <Button DockPanel.Dock="Right" Height="30" Content="Add Item" Click="AddNewItem"/>
+                    
+                    <ComboBox ItemsSource="{Binding PriceSuffixes}" Height="30" DockPanel.Dock="Right" SelectedIndex="0" Name="NewItem_PriceSuffix">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <CheckBox Height="30" DockPanel.Dock="Right" Name="NewItem_IsPurchase"></CheckBox>
+                    <TextBox Height="30" Width="100" Name="NewItem_Price" DockPanel.Dock="Right"/>
+                    
+                    <TextBox Name="NewItem_Name" Height="30" />
+                </DockPanel>
+                
+            </Grid>
+
+            <Button Grid.Column="1" Click="Button_Click">Save</Button>
+            
+        </Grid>
     </Border>
 </Window>

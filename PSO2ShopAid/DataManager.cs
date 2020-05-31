@@ -1,5 +1,4 @@
-﻿using DrWPF.Windows.Data;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -14,7 +13,7 @@ namespace PSO2ShopAid
         {
             try
             {
-                ObservableDictionary<ItemName, Item> items = MainWindow.Shop.Items;
+                ObservableCollection<Item> items = MainWindow.Shop.Items;
                 string data = JsonConvert.SerializeObject(items);
                 File.WriteAllText(savePath, data);
             }
@@ -25,7 +24,7 @@ namespace PSO2ShopAid
             }
         }
 
-        public static void SaveItems(ObservableDictionary<ItemName, Item> items)
+        public static void SaveItems(ObservableCollection<Item> items)
         {
             try
             {
@@ -39,18 +38,18 @@ namespace PSO2ShopAid
             }
         }
 
-        public static ObservableDictionary<ItemName, Item> LoadItems()
+        public static ObservableCollection<Item> LoadItems()
         {
             try
             {
                 string data = File.ReadAllText(savePath);
-                return JsonConvert.DeserializeObject<ObservableDictionary<ItemName, Item>>(data);
+                return JsonConvert.DeserializeObject<ObservableCollection<Item>>(data);
             }
             catch (Exception e)
             {
                 Console.WriteLine("[ERROR] Unable to load save data");
                 Console.WriteLine(e);
-                return new ObservableDictionary<ItemName, Item>();
+                return new ObservableCollection<Item>();
             }
         }
     }

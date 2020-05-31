@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,10 +10,11 @@ namespace PSO2ShopAid
 {
     public class Price
     {
-        public float RawPrice { get; }
-        private Tuple<float, PriceSuffix> priceK;
-        private Tuple<float, PriceSuffix> priceM;
+        public float RawPrice { get; set; }
+        public float priceK { get; set; }
+        public float priceM { get; set; }
 
+        [JsonConstructor]
         public Price(float rawNum)
         {
             RawPrice = rawNum;
@@ -27,10 +29,10 @@ namespace PSO2ShopAid
             priceM = GetShortPrice(RawPrice, PriceSuffix.m);
         }
 
-        private Tuple<float, PriceSuffix> GetShortPrice(float rawNum, PriceSuffix suffix)
+        private float GetShortPrice(float rawNum, PriceSuffix suffix)
         {
-            float value = rawNum / 1000;
-            return new Tuple<float, PriceSuffix>(value, suffix);
+            float value = suffix.Equals(PriceSuffix.k) ? rawNum / 1000 : rawNum / 1000000;
+            return value;
         }
 
         private float GetRawPrice(float num, PriceSuffix suffix)

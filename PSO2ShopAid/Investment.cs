@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -26,6 +27,15 @@ namespace PSO2ShopAid
         {
             PurchaseDate = DateTime.Now;
             PurchasePrice = price;
+        }
+
+        [JsonConstructor]
+        public Investment(DateTime purchaseDate, Price purchasePrice, DateTime sellDate, Price sellPrice, bool isSold)
+        {
+            PurchaseDate = purchaseDate;
+            PurchasePrice = purchasePrice;
+            SellDate = sellDate;
+            SellPrice = sellPrice;
         }
 
         public void Sell(Price price, DateTime date)

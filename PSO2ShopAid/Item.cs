@@ -1,15 +1,50 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace PSO2ShopAid
 {
-    public class Item
+    public class Item : BaseViewModel
     {
-        public ItemName name { get; set; }
+        public string NameEN { get; set; }
+        public string NameJP { get; set; }
         public DateTime ReleaseDate { get; set; }
         public List<DateTime> RevivalDates { get; set; }
-        public List<Investment> Investments { get; }
-        public List<Encounter> Encounters { get; }
+        public List<Investment> Investments { get; set; }
+        public List<Encounter> Encounters { get; set; }
+        public string Colour { get; set; }
+
+        public Item(string nameEN)
+        {
+            NameEN = nameEN;
+            RevivalDates = new List<DateTime>();
+            Investments = new List<Investment>();
+            Encounters = new List<Encounter>();
+            Colour = ColourPicker.GetRandomColour();
+        }
+
+        public Item(string nameEN, string colour)
+        {
+            NameEN = nameEN;
+            RevivalDates = new List<DateTime>();
+            Investments = new List<Investment>();
+            Encounters = new List<Encounter>();
+            Colour = colour;
+            ColourPicker.AddColour(colour);
+        }
+
+        [JsonConstructor]
+        public Item(string nameEN, string nameJP, DateTime release, List<DateTime> rev, List<Investment> investments, List<Encounter> encounters, string col)
+        {
+            NameEN = nameEN;
+            NameJP = nameJP;
+            ReleaseDate = release;
+            RevivalDates = rev;
+            Investments = investments;
+            Encounters = encounters;
+            Colour = col;
+        }
 
         public int Stock
         {
@@ -25,7 +60,6 @@ namespace PSO2ShopAid
                 }
 
                 return stock;
-
             }
         }
 
@@ -33,7 +67,7 @@ namespace PSO2ShopAid
         {
             get
             {
-                return GetAllPriceRecords().Values.Average();
+                return GetAllPriceRecords().Average();
             }
         }
 
@@ -41,6 +75,11 @@ namespace PSO2ShopAid
         {
             get
             {
+                if (Encounters.Count == 0)
+                {
+                    return new Tuple<Price, DateTime>(new Price(0), default);
+                }
+
                 Price min = new Price(float.MaxValue);
                 DateTime date = default;
 
@@ -118,13 +157,13 @@ namespace PSO2ShopAid
             }
         }
 
-        public SortedDictionary<DateTime, Price> GetAllPriceRecords()
+        public List<Price> GetAllPriceRecords()
         {
-            SortedDictionary<DateTime, Price> records = new SortedDictionary<DateTime, Price>();
+            List<Price> records = new List<Price>();
 
             foreach (Encounter log in Encounters)
             {
-                records.Add(log.date, log.price);
+                records.Add(log.price);
             }
 
             return records;
@@ -132,8 +171,8 @@ namespace PSO2ShopAid
 
         public void Purchase(Price price, DateTime time = default)
         {
-            Investment newInvestment = time.Equals(default) ? new Investment(price) : new Investment(price, time);
-            Encounter newEncounter = time.Equals(default) ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
+            Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
+            Encounter newEncounter = time == default ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
 
             Investments.Add(newInvestment);
             Encounters.Add(newEncounter);
@@ -141,32 +180,35 @@ namespace PSO2ShopAid
 
         public void Log(Price price, DateTime time = default)
         {
-            Encounter newEncounter = time.Equals(default) ? new Encounter(price) : new Encounter(price, time);
+            Encounter newEncounter = time == default ? new Encounter(price) : new Encounter(price, time);
             Encounters.Add(newEncounter);
         }
-    }
 
-    public class ItemName
-    {
-        public string NameEN { get; set; }
-        public string NameJP { get; set; }
-
-        public ItemName(string name, Language language)
+        public override string ToString()
         {
-            if (language.Equals(Language.EN))
+            try
             {
-                NameEN = name;
+                return JsonConvert.SerializeObject(this);
             }
-            else
-            {
-                NameJP = name;
-            }
+            catch { return base.ToString(); }
+
         }
     }
 
-    public enum Language
+    public static class ItemOp
     {
-        EN,
-        JP
+        public static bool IsSame(this Item i1, Item i2)
+        {
+            return i1.NameEN == i2.NameEN;
+        }
+
+        public static void NotifyChanged(this Item item)
+        {
+            PropertyInfo[] properties = typeof(Item).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                item.NotifyPropertyChanged(property.Name);
+            }
+        }
     }
 }
