@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PSO2ShopAid"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="PSO2 Shop Aid" Height="450" Width="800">
+
     <Border Margin="10">
         
     </Border>

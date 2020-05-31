@@ -5,8 +5,7 @@ namespace PSO2ShopAid
 {
     public class Item
     {
-        public string NameEN { get; set; }
-        public string NameJP { get; set; }
+        public ItemName name { get; set; }
         public DateTime ReleaseDate { get; set; }
         public List<DateTime> RevivalDates { get; set; }
         public List<Investment> Investments { get; }
@@ -119,7 +118,6 @@ namespace PSO2ShopAid
             }
         }
 
-
         public SortedDictionary<DateTime, Price> GetAllPriceRecords()
         {
             SortedDictionary<DateTime, Price> records = new SortedDictionary<DateTime, Price>();
@@ -134,8 +132,8 @@ namespace PSO2ShopAid
 
         public void Purchase(Price price, DateTime time = default)
         {
-            Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
-            Encounter newEncounter = time == default ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
+            Investment newInvestment = time.Equals(default) ? new Investment(price) : new Investment(price, time);
+            Encounter newEncounter = time.Equals(default) ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
 
             Investments.Add(newInvestment);
             Encounters.Add(newEncounter);
@@ -143,16 +141,32 @@ namespace PSO2ShopAid
 
         public void Log(Price price, DateTime time = default)
         {
-            Encounter newEncounter = time == default ? new Encounter(price) : new Encounter(price, time);
+            Encounter newEncounter = time.Equals(default) ? new Encounter(price) : new Encounter(price, time);
             Encounters.Add(newEncounter);
         }
     }
 
-    public static class ItemOp
+    public class ItemName
     {
-        public static bool IsSame(this Item i1, Item i2)
+        public string NameEN { get; set; }
+        public string NameJP { get; set; }
+
+        public ItemName(string name, Language language)
         {
-            return i1.NameEN == i2.NameEN || i1.NameJP == i2.NameJP;
+            if (language.Equals(Language.EN))
+            {
+                NameEN = name;
+            }
+            else
+            {
+                NameJP = name;
+            }
         }
+    }
+
+    public enum Language
+    {
+        EN,
+        JP
     }
 }

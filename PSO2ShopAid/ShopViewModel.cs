@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using DrWPF.Windows.Data;
 
 namespace PSO2ShopAid
 {
     public class ShopViewModel : BaseViewModel
     {
-        public ObservableCollection<Item> Items { get; set; }
-        public ObservableCollection<Item> Inventory { get; set; }
+        public ObservableDictionary<ItemName, Item> Items { get; set; }
+        public ObservableDictionary<ItemName, Item> Inventory { get; set; }
 
         public ShopViewModel()
         {
@@ -18,13 +19,13 @@ namespace PSO2ShopAid
 
         public void RefreshInventory()
         {
-            Inventory = new ObservableCollection<Item>();
+            Inventory = new ObservableDictionary<ItemName, Item>();
 
             foreach (Item item in Items)
             {
                 if (item.Stock > 0)
                 {
-                    Inventory.Add(item);
+                    Inventory.Add(item.name, item);
                 }
             }
         }
