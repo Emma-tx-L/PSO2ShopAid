@@ -71,6 +71,15 @@ namespace PSO2ShopAid
             }
         }
 
+        public Price AveragePurchasePrice
+        {
+            get
+            {
+                List<Price> unsoldPrices = GetUnsoldPurchasePriceRecords();
+                return unsoldPrices.Count == 0 ? new Price(0) : unsoldPrices.Average();
+            }
+        }
+
         public Tuple<Price, DateTime> MinPrice
         {
             get
@@ -157,6 +166,88 @@ namespace PSO2ShopAid
             }
         }
 
+        public Price TotalProfit
+        {
+            get
+            {
+                float total = 0;
+                foreach (Investment investment in Investments)
+                {
+                    if (investment.IsSold)
+                    {
+                        total += investment.SellPrice.Subtract(investment.PurchasePrice).RawPrice;
+                    }
+                }
+
+                return new Price(0);
+            }
+        }
+
+        public TimeSpan TimeSinceLastPurchase
+        {
+            get
+            {
+                if (Investments.Count == 0)
+                {
+                    return new TimeSpan(0);
+                }
+
+                DateTime date = default;
+                foreach (Investment investment in Investments)
+                {
+                    if (investment.PurchaseDate > date)
+                    {
+                        date = investment.PurchaseDate;
+                    }
+                }
+
+                return DateTime.Now.Subtract(date);
+            }
+        }
+
+        public Price ApproximateCurrentProfit
+        {
+            get
+            {
+                return AveragePurchasePrice.RawPrice == 0 ? AveragePurchasePrice : LatestPrice.Subtract(AveragePurchasePrice);
+            }
+        }
+
+        public float ApproximateCurrentProfitPercent
+        {
+            get
+            {
+                return (float)Math.Round(LatestPrice.PercentOf(AveragePurchasePrice));
+            }
+        }
+
+        public TimeSpan TimeSinceLastAvailable
+        {
+            get
+            {
+                if (RevivalDates.Count > 0)
+                {
+                    DateTime recent = default;
+                    foreach (DateTime date in RevivalDates)
+                    {
+                        if (date > recent)
+                            recent = date;
+                    }
+
+                    return DateTime.Now.Subtract(recent);
+                }
+                else if (ReleaseDate != null && !ReleaseDate.Equals(default))
+                {
+                    return DateTime.Now.Subtract(ReleaseDate);
+                }
+                else
+                {
+                    return new TimeSpan(0);
+                }
+            }
+        }
+            
+
         public List<Price> GetAllPriceRecords()
         {
             List<Price> records = new List<Price>();
@@ -164,6 +255,19 @@ namespace PSO2ShopAid
             foreach (Encounter log in Encounters)
             {
                 records.Add(log.price);
+            }
+
+            return records;
+        }
+
+        public List<Price> GetUnsoldPurchasePriceRecords()
+        {
+            List<Price> records = new List<Price>();
+
+            foreach (Investment investment in Investments)
+            {
+                if (!investment.IsSold)
+                    records.Add(investment.PurchasePrice);
             }
 
             return records;

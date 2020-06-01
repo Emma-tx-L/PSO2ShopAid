@@ -15,19 +15,13 @@ namespace PSO2ShopAid
     {
         void Application_Exit(object sender, ExitEventArgs e)
         {
-            DataManager.SaveItems();
+            DataManager.Save();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            DataManager.Save();
             base.OnExit(e);
-            DataManager.SaveItems();
-        }
-
-        protected override void OnDeactivated(EventArgs e)
-        {
-            base.OnDeactivated(e);
-            DataManager.SaveItems();
         }
     }
 }

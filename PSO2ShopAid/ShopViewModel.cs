@@ -29,6 +29,8 @@ namespace PSO2ShopAid
                     Inventory.Add(item);
                 }
             }
+
+            NotifyPropertyChanged(nameof(Inventory));
         }
 
         public void AddNewItem(string nameEN, string colour = null)
@@ -102,7 +104,18 @@ namespace PSO2ShopAid
                 }
             }
 
-            Items.Except(removeList);
+            Items = new ObservableCollection<Item>(Items.Except(removeList));
+            NotifyPropertyChanged(nameof(Items));
+        }
+
+        public void CompleteRefresh()
+        {
+            foreach (Item item in Items)
+            {
+                item.NotifyChanged();
+            }
+
+            NotifyPropertyChanged(nameof(Items));
             RefreshInventory();
         }
     }

@@ -15,6 +15,22 @@ namespace PSO2ShopAid
         public DateTime SellDate { get; set; }
         public Price SellPrice { get; set; }
         public bool IsSold { get { return SellPrice != null && SellDate != null; } }
+        public TimeSpan DaysToFlip
+        {
+            get
+            {
+                return IsSold ? SellDate.Subtract(PurchaseDate) : DateTime.Now.Subtract(PurchaseDate);
+            }
+
+        }
+
+        public Price Profit
+        {
+            get
+            {
+                return IsSold ? SellPrice.Subtract(PurchasePrice) : new Price(0);
+            }
+        }
 
 
         public Investment(Price price, DateTime date)

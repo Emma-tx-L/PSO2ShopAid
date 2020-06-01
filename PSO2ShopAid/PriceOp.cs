@@ -20,7 +20,12 @@ namespace PSO2ShopAid
 
         public static float PercentChange(this Price curr, Price orig)
         {
-            return (curr.RawPrice - orig.RawPrice) / orig.RawPrice * 100;
+            return orig.RawPrice == 0 ? 0 : (curr.RawPrice - orig.RawPrice) / orig.RawPrice * 100;
+        }
+
+        public static float PercentOf(this Price curr, Price orig)
+        {
+            return orig.RawPrice == 0 ? 0 : curr.RawPrice / orig.RawPrice * 100;
         }
 
         public static Price Average(this IEnumerable<Price> prices)

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PSO2ShopAid
@@ -14,6 +15,11 @@ namespace PSO2ShopAid
     {
         public static ShopViewModel Shop;
 
+        private bool isAddingItem = false;
+        private int addItemTimeout = 2000;
+
+        public List<string> OpenItemWindows = new List<string>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -21,8 +27,14 @@ namespace PSO2ShopAid
             DataContext = Shop;
         }
 
-        private void AddNewItem(object sender, RoutedEventArgs e)
+        private async void AddNewItem(object sender, RoutedEventArgs e)
         {
+            if (isAddingItem)
+            {
+                return;
+            }
+
+            isAddingItem = true;
             string name = NewItem_Name.Text;
             string priceString = NewItem_Price.Text;
             PriceSuffix suffix = (PriceSuffix)NewItem_PriceSuffix.SelectedItem;
@@ -54,6 +66,32 @@ namespace PSO2ShopAid
                     Console.WriteLine(err);
                 }
             }
+
+            await Task.Delay(addItemTimeout);
+            isAddingItem = false;
+        }
+
+        private void OpenItem(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2)
+            {
+                Item item = (Item)TrackedItems.SelectedItem;
+
+                if (OpenItemWindows.Contains(item.NameEN))
+                {
+                    return;
+                }
+
+                ItemWindow itemWindow = new ItemWindow(item, this);
+                OpenItemWindows.Add(item.NameEN);
+                itemWindow.Show();
+            }
+        }
+
+        private void DeleteItem(object sender, RoutedEventArgs e)
+        {
+            Item item = (Item)TrackedItems.SelectedItem;
+            Shop.RemoveItem(item);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -63,8 +101,15 @@ namespace PSO2ShopAid
 
         protected override void OnDeactivated(EventArgs e)
         {
+            DataManager.Save();
             base.OnDeactivated(e);
-            DataManager.SaveItems();
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            Shop.CompleteRefresh();
+            base.OnActivated(e);
+
         }
     }
 }

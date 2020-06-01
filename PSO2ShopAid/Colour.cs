@@ -1,15 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PSO2ShopAid
 {
     public static class ColourPicker
     {
-        public static List<string> Colours;
-
-        static ColourPicker()
-        {
-            Colours = new List<string>
+        public static List<string> Colours = new List<string>
             {
                 "#55efc4", "#81ecec", "#74b9ff", "#a29bfe", "#00b894", "#00cec9", "#0984e3", "#6c5ce7",
                 "#ffeaa7", "#fab1a0", "#ff7675", "#fd79a8", "#fdcb6e", "#e17055", "#d63031", "#e84393",
@@ -20,6 +18,25 @@ namespace PSO2ShopAid
                 "#67e6dc", "#17c0eb", "#7158e2", "#ae00ff", "#7300ff", "#9cfaff", "#9cd2ff", "#a6ffb8",
                 "#deffad", "#fffeb0", "#a2ff80", "#9cb4ff", "#66fffa", "#5490ff", "#8a54ff", "#d7c4ff",
             };
+
+        static ColourPicker()
+        {
+            string savedColours = Properties.Settings.Default.Colours;
+            if (string.IsNullOrEmpty(savedColours))
+            {
+                return;
+            }
+
+            try
+            {
+                List<string> newColours = JsonConvert.DeserializeObject<List<string>>(savedColours);
+                Colours = newColours.Count > Colours.Count ? newColours : Colours.Union(newColours).ToList();
+            }
+            catch
+            {
+                return;
+            }
+            
         }
 
         public static string GetRandomColour()

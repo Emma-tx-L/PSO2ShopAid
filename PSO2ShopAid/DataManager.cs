@@ -9,6 +9,26 @@ namespace PSO2ShopAid
     {
         private static string savePath = Path.Combine(Directory.GetCurrentDirectory(), "savedItems.txt");
 
+        public static void Save()
+        {
+            SaveItems();
+            SaveColours();
+        }
+
+        public static void SaveColours()
+        {
+            try
+            {
+                string data = JsonConvert.SerializeObject(ColourPicker.Colours);
+                Properties.Settings.Default.Colours = data;
+                Properties.Settings.Default.Save();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                Properties.Settings.Default.Save();
+            }
+        }
         public static void SaveItems()
         {
             try
