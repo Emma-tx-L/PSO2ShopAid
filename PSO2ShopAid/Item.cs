@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 
 namespace PSO2ShopAid
@@ -10,39 +12,42 @@ namespace PSO2ShopAid
         public string NameEN { get; set; }
         public string NameJP { get; set; }
         public DateTime ReleaseDate { get; set; }
-        public List<DateTime> RevivalDates { get; set; }
-        public List<Investment> Investments { get; set; }
-        public List<Encounter> Encounters { get; set; }
+        public ObservableCollection<DateTime> RevivalDates { get; set; }
+        public ObservableCollection<Investment> Investments { get; set; }
+        public ObservableCollection<Encounter> Encounters { get; set; }
         public string Colour { get; set; }
 
         public Item(string nameEN)
         {
             NameEN = nameEN;
-            RevivalDates = new List<DateTime>();
-            Investments = new List<Investment>();
-            Encounters = new List<Encounter>();
+            RevivalDates = new ObservableCollection<DateTime>();
+            Investments = new ObservableCollection<Investment>();
+            Encounters = new ObservableCollection<Encounter>();
             Colour = ColourPicker.GetRandomColour();
         }
 
         public Item(string nameEN, string colour)
         {
             NameEN = nameEN;
-            RevivalDates = new List<DateTime>();
-            Investments = new List<Investment>();
-            Encounters = new List<Encounter>();
+            RevivalDates = new ObservableCollection<DateTime>();
+            Investments = new ObservableCollection<Investment>();
+            Encounters = new ObservableCollection<Encounter>();
             Colour = colour;
             ColourPicker.AddColour(colour);
         }
 
         [JsonConstructor]
-        public Item(string nameEN, string nameJP, DateTime release, List<DateTime> rev, List<Investment> investments, List<Encounter> encounters, string col)
+        public Item(string nameEN, string nameJP, DateTime release, ObservableCollection<DateTime> rev, List<Investment> investments, List<Encounter> encounters, string col)
         {
+            investments.Sort();
+            encounters.Sort();
+
             NameEN = nameEN;
             NameJP = nameJP;
             ReleaseDate = release;
             RevivalDates = rev;
-            Investments = investments;
-            Encounters = encounters;
+            Investments = new ObservableCollection<Investment>(investments);
+            Encounters = new ObservableCollection<Encounter>(encounters);
             Colour = col;
         }
 
@@ -129,19 +134,14 @@ namespace PSO2ShopAid
         {
             get
             {
-                Price price = new Price(0);
-                DateTime date = default;
-
-                foreach (Encounter log in Encounters)
+                if (Encounters.Count == 0)
                 {
-                    if (log.date > date)
-                    {
-                        price = log.price;
-                        date = log.date;
-                    }
+                    return new Tuple<Price, DateTime>(new Price(0), default);
                 }
 
-                return new Tuple<Price, DateTime>(price, date);
+                Encounter latest = Encounters[Encounters.Count - 1];
+
+                return new Tuple<Price, DateTime>(latest.price, latest.date);
             }
         }
 
@@ -179,7 +179,7 @@ namespace PSO2ShopAid
                     }
                 }
 
-                return new Price(0);
+                return new Price(total);
             }
         }
 
@@ -192,14 +192,7 @@ namespace PSO2ShopAid
                     return new TimeSpan(0);
                 }
 
-                DateTime date = default;
-                foreach (Investment investment in Investments)
-                {
-                    if (investment.PurchaseDate > date)
-                    {
-                        date = investment.PurchaseDate;
-                    }
-                }
+                DateTime date = Investments[Investments.Count - 1].PurchaseDate;
 
                 return DateTime.Now.Subtract(date);
             }
@@ -278,14 +271,58 @@ namespace PSO2ShopAid
             Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
             Encounter newEncounter = time == default ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
 
-            Investments.Add(newInvestment);
-            Encounters.Add(newEncounter);
+            Investments.Insert(0, newInvestment);
+            Encounters.Insert(0, newEncounter);
+            this.NotifyChanged();
         }
 
         public void Log(Price price, DateTime time = default)
         {
             Encounter newEncounter = time == default ? new Encounter(price) : new Encounter(price, time);
-            Encounters.Add(newEncounter);
+            Encounters.Insert(0, newEncounter);
+            this.NotifyChanged();
+        }
+
+        public void Sell(Price price, DateTime time = default)
+        {
+            foreach (Investment investment in Investments)
+            {
+                if (!investment.IsSold) // get the oldest unsold investment
+                {
+                    investment.Sell(price);
+                    break;
+                }
+            }
+            Encounter newEncounter = time == default ? new Encounter(price) : new Encounter(price, time);
+            Encounters.Insert(0, newEncounter);
+            this.NotifyChanged();
+        }
+
+        public void AddRevivalDate(DateTime newDate)
+        {
+            if (RevivalDates == null)
+            {
+                RevivalDates = new ObservableCollection<DateTime>();
+            }
+
+            // invariant: RevivalDates is already sorted from latest (largest) date -> earliest date
+            for (int i = 0; i < RevivalDates.Count; i++)
+            {
+                if (RevivalDates[i].Date.Equals(newDate.Date)) // no duplicates
+                {
+                    return;
+                }
+
+                if (RevivalDates[i].Date < newDate.Date) // traverse until we find a date smaller than the current date
+                {
+                    RevivalDates.Insert(i, newDate); //insert the current date here
+                    return;
+                }
+            }
+
+            // else if we've reached the end without inserting, then it is earlier than all other dates (or the list is empty)
+            // and we want to insert it at the end anyway
+            RevivalDates.Add(newDate);
         }
 
         public override string ToString()
@@ -299,7 +336,7 @@ namespace PSO2ShopAid
         }
     }
 
-    public static class ItemOp
+    public static class HelperOp
     {
         public static bool IsSame(this Item i1, Item i2)
         {
@@ -312,6 +349,15 @@ namespace PSO2ShopAid
             foreach (PropertyInfo property in properties)
             {
                 item.NotifyPropertyChanged(property.Name);
+            }
+        }
+
+        public static void NotifyChanged(this Investment investment)
+        {
+            PropertyInfo[] properties = typeof(Investment).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                investment.NotifyPropertyChanged(property.Name);
             }
         }
     }

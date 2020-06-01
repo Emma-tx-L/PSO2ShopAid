@@ -78,6 +78,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Comparers.cs" />
     <Compile Include="ItemWindow.xaml.cs">
       <DependentUpon>ItemWindow.xaml</DependentUpon>
     </Compile>

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PSO2ShopAid
 {
-    public class Investment
+    public class Investment : BaseViewModel, IComparable<Investment>
     {
         public DateTime PurchaseDate { get; set; }
         public Price PurchasePrice { get; set; }
@@ -31,7 +31,6 @@ namespace PSO2ShopAid
                 return IsSold ? SellPrice.Subtract(PurchasePrice) : new Price(0);
             }
         }
-
 
         public Investment(Price price, DateTime date)
         {
@@ -58,12 +57,14 @@ namespace PSO2ShopAid
         {
             SellDate = date;
             SellPrice = price;
+            this.NotifyChanged();
         }
 
         public void Sell(Price price)
         {
             SellDate = DateTime.Now;
             SellPrice = price;
+            this.NotifyChanged();
         }
 
         public Price NetGain()
@@ -94,6 +95,11 @@ namespace PSO2ShopAid
             }
 
             return SellDate.Subtract(PurchaseDate);
+        }
+
+        public int CompareTo(Investment other)
+        {
+            return other.PurchaseDate.CompareTo(PurchaseDate);
         }
     }
 }

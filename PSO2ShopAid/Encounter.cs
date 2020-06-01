@@ -3,7 +3,7 @@ using System;
 
 namespace PSO2ShopAid
 {
-    public class Encounter
+    public class Encounter : IComparable<Encounter>
     {
         public Price price { get; set; }
         public DateTime date { get; set; }
@@ -30,6 +30,11 @@ namespace PSO2ShopAid
             price = p;
             date = d;
             Purchase = purchase;
+        }
+
+        public int CompareTo(Encounter other)
+        {
+            return other.date.CompareTo(date);
         }
     }
 }

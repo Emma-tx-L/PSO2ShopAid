@@ -13,6 +13,10 @@ namespace PSO2ShopAid
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return "-";
+            }
             Price price = (Price)value;
 
             if (price.RawPrice < 1000000)
@@ -36,6 +40,10 @@ namespace PSO2ShopAid
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return "-";
+            }
             double price = (double)value;
 
             if (price < 1000000)
@@ -54,11 +62,42 @@ namespace PSO2ShopAid
         }
     }
 
-    [ValueConversion(typeof(DateTime), typeof(string))]
-    public class DateAxisConverter : IValueConverter
+    [ValueConversion(typeof(double), typeof(string))]
+    public class TooltipPriceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return "-";
+            }
+            float price = (float)value;
+
+            if (price < 1000000)
+            {
+                return $"{Math.Round(price / 1000, 1)}k";
+            }
+            else
+            {
+                return $"{Math.Round(price / 1000000, 1)}m";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(DateTime), typeof(string))]
+    public class TimeSpanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "-";
+            }
             DateTime date = (DateTime)value;
             TimeSpan timeSince = DateTime.Now.Subtract(date);
 
@@ -83,11 +122,77 @@ namespace PSO2ShopAid
         }
     }
 
+    [ValueConversion(typeof(DateTime), typeof(string))]
+    public class ShortDateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "-";
+            }
+            DateTime date = (DateTime)value;
+            return date.ToString("h:mm tt ddd \n d MMM yyyy");
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(DateTime), typeof(string))]
+    public class VeryShortDateConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "-";
+            }
+            DateTime date = (DateTime)value;
+            return date.ToString("MMM d yyyy");
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime date = (DateTime)value;
+            return date;
+        }
+    }
+
+    [ValueConversion(typeof(DateTime), typeof(DateTime))]
+    public class DefaultDateToNowConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return default;
+            }
+            DateTime date = (DateTime)value;
+            return date.Equals(default) ? DateTime.Now : date;
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime date = (DateTime)value;
+            return date;
+        }
+    }
+
     [ValueConversion(typeof(TimeSpan), typeof(string))]
     public class TimeSinceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return "-";
+            }
             TimeSpan time = (TimeSpan)value;
             if (time.TotalHours < 1)
             {
@@ -109,11 +214,45 @@ namespace PSO2ShopAid
         }
     }
 
+    [ValueConversion(typeof(TimeSpan), typeof(string))]
+    public class TimeAgoConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "-";
+            }
+            TimeSpan time = (TimeSpan)value;
+            if (time.TotalHours < 1)
+            {
+                return $"{time.Minutes}min ago";
+            }
+            else if (time.TotalDays < 1)
+            {
+                return $"{time.Hours}h ago";
+            }
+            else
+            {
+                return $"{time.Days}d {time.Hours}h ago";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [ValueConversion(typeof(bool), typeof(string))]
     public class DidPurchaseConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return "#ffffff";
+            }
             bool didPurchase = (bool)value;
             if (didPurchase)
             {
