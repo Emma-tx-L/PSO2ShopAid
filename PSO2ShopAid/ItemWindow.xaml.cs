@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Linq;
 
 namespace PSO2ShopAid
 {
@@ -57,8 +59,8 @@ namespace PSO2ShopAid
 
         private void DeleteRevivalDate(object sender, RoutedEventArgs e)
         {
-            
-            
+            List<DateTime> toDelete = RevivalsListView.SelectedItems.Cast<DateTime>().ToList();
+            item.RemoveRevivalDate(toDelete);
         }
 
 

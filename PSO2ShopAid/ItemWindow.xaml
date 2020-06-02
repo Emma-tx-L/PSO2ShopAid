@@ -8,14 +8,15 @@
         xmlns:DVC1="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="{Binding NameEN}" Height="600" Width="1000">
+        Title="{Binding NameEN}" Height="700" Width="1200">
+
     <Window.Resources>
         <!-- Converters -->
         <local:PriceConverter x:Key="PriceConverter" />
         <local:TimeSinceConverter x:Key="TimeSinceConverter" />
         <local:RawPriceConverter x:Key="RawPriceConverter" />
         <local:TimeSpanConverter x:Key="TimeSpanConverter" />
-        <local:DidPurchaseConverter x:Key="DidPurchaseConverter" />
+        <local:EncounterToColourConverter x:Key="EncounterToColourConverter" />
         <local:ShortDateConverter x:Key="ShortDateConverter" />
         <local:VeryShortDateConverter x:Key="VeryShortDateConverter" />
         <local:DefaultDateToNowConverter x:Key="DefaultDateToNowConverter" />
@@ -53,9 +54,17 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="AutoGenerateColumns" Value="False" />
-            <Setter Property="HeadersVisibility" Value="None" />
             <Setter Property="GridLinesVisibility" Value="None" />
             <Setter Property="IsReadOnly" Value="True" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#3d334d"/>
+            <Setter Property="Foreground" Value="#dee5ff"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="FontFamily" Value="Ink Free" />
         </Style>
 
         <Style x:Key="InvisibleLegend" TargetType="DVC1:Legend">
@@ -107,7 +116,7 @@
                                 </StackPanel>
                             </ToolTipService.ToolTip>
                             <Ellipse StrokeThickness="{TemplateBinding BorderThickness}" Stroke="{TemplateBinding BorderBrush}" 
-                                     Fill="{Binding DidPurchase, Converter={StaticResource DidPurchaseConverter}}"/>
+                                     Fill="{Binding Converter={StaticResource EncounterToColourConverter}}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -152,7 +161,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Item Info and Encounters -->
@@ -202,18 +211,20 @@
                                 </DatePicker.Resources>
                             </DatePicker>
 
-                            <ListView ItemsSource="{Binding RevivalDates}" BorderBrush="Transparent" Margin="0 0 10 0">
+                            <ListView ItemsSource="{Binding RevivalDates}" BorderBrush="Transparent" Margin="0 0 10 0" Name="RevivalsListView">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={StaticResource VeryShortDateConverter}}"/>
+                                        <TextBlock Text="{Binding Converter={StaticResource VeryShortDateConverter}}" FontFamily="Ink Free"/>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                                 <ListView.ContextMenu>
-                                    <ContextMenu>
+                                    <ContextMenu Background="#fc0d59">
                                         <MenuItem Header="Delete" Click="DeleteRevivalDate" 
                                                   Background="#520000"
                                                   FontFamily="Ink Free"
-                                                  Foreground="#ffa1bf"/>
+                                                  Foreground="#ffa1bf"
+                                                  BorderBrush="#ffa1bf"
+                                                  BorderThickness="0.5"/>
                                     </ContextMenu>
                                 </ListView.ContextMenu>
                             </ListView>
@@ -221,6 +232,7 @@
                     </DockPanel>
 
                     <DockPanel Grid.Row="2" Margin="0 10">
+                        <TextBlock DockPanel.Dock="Top" Text="Logs:" FontSize="18"/>
                         <DataGrid Margin="0 0 10 0" ItemsSource="{Binding Encounters}" Name="ItemEncountersGrid">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Width="*" Header="Price">
@@ -254,7 +266,7 @@
                 <!-- Investment Area and Graph -->
                 <DockPanel Grid.Column="1" Margin="5 0 0 0">
                     <!-- Graph -->
-                    <Grid  Height="300" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
+                    <Grid  Height="350" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
                         <DVC1:Chart 
                             TitleStyle="{StaticResource InvisibleChartTitle}"
                             Background="#292929"
@@ -281,6 +293,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Investment Stats -->
@@ -298,11 +311,12 @@
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Last purchased:" FontSize="15"/>
                                 <TextBlock DockPanel.Dock="Left" Text="{Binding TimeSinceLastPurchase, Converter={StaticResource TimeAgoConverter}}" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="ago" FontSize="15"/>
                             </DockPanel>
 
                             <DockPanel>
                                 <TextBlock DockPanel.Dock="Top" Text="Approx. Current Profit:" FontSize="18"/>
-                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"/>
+                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 40 0"/>
                                 <TextBlock Text="{Binding ApproximateCurrentProfitPercent}" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold"/>
                                 <TextBlock Text="%" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"/>
                             </DockPanel>
@@ -310,48 +324,84 @@
                         </DockPanel>
                         <!-- /End Investment Stats-->
 
-                        <!-- Investment Logs -->
+
                         <DockPanel Grid.Column="1">
+                            <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
+                                <TextBlock DockPanel.Dock="Left" Text="Average Price:" FontSize="18"/>
+                                <TextBlock Text="{Binding AveragePrice, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="15" Margin="0 0 10 0"/>
+                            </DockPanel>
+
+                            <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
+                                <TextBlock DockPanel.Dock="Left" Text="Max Price:" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding MaxPrice.Item1, Converter={StaticResource PriceConverter}}" FontSize="15"/>
+                            </DockPanel>
+
+                            <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
+                                <TextBlock DockPanel.Dock="Left" Text="Min Price:" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding MinPrice.Item1, Converter={StaticResource PriceConverter}}" FontSize="15"/>
+                            </DockPanel>
+
+                            <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
+                                <TextBlock DockPanel.Dock="Top" Text="Average Purchase Price:" FontSize="18"/>
+                                <TextBlock Text="{Binding AveragePurchasePrice, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Bottom" FontSize="18" FontWeight="Bold" Margin="10 0 10 10"/>
+                            </DockPanel>
+
+                        </DockPanel>
+
+                        <!-- Investment Logs -->
+                        <DockPanel Grid.Column="2">
+                            <TextBlock DockPanel.Dock="Top" Text="Investments" FontSize="18"/>
                             <DataGrid ItemsSource="{Binding Investments}" Name="ItemInvestmentsGrid">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="2*" Header="Purchase Price n Date">
+                                    <DataGridTemplateColumn Width="*" Header="Price">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition />
-                                                        <RowDefinition />
-                                                    </Grid.RowDefinitions>
-                                                    <Rectangle Fill="#424242" Grid.RowSpan="2"/>
-                                                    <TextBlock Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" Grid.Row="0"  HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                                    <TextBlock Text="{Binding PurchaseDate, Converter={StaticResource ShortDateConverter}}" Grid.Row="1"  HorizontalAlignment="Right" TextWrapping="Wrap" FontSize="10" Foreground="#d1d1d1"/>
+                                                    <Rectangle Fill="#424242" />
+                                                    <TextBlock Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#d1d1d1" Padding="5" FontSize="18"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
 
-                                    <DataGridTemplateColumn Width="*" Header="Days Since">
+                                    <DataGridTemplateColumn Width="*" Header="Buy Date">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding DaysToFlip, Converter={StaticResource TimeAgoConverter}}" Grid.Column="1"  HorizontalAlignment="Center" Margin="10 0 0 5" TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                                    <Rectangle Fill="#424242" />
+                                                    <TextBlock Text="{Binding PurchaseDate, Converter={StaticResource VeryShortDateConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="10" Foreground="#d1d1d1" Padding="2"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Width="*" Header="Flip Time">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
                                                     <Rectangle Fill="#424242"/>
+                                                    <TextBlock Text="{Binding DaysToFlip, Converter={StaticResource TimeAgoConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#d1d1d1"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
 
-                                    <DataGridTemplateColumn Width="*" Header="Sold at n profit">
+                                    <DataGridTemplateColumn Width="*" Header="Sold At">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition />
-                                                        <RowDefinition />
-                                                    </Grid.RowDefinitions>
                                                     <Rectangle Fill="#424242" Grid.RowSpan="2"/>
-                                                    <TextBlock Text="{Binding SellPrice, Converter={StaticResource PriceConverter}}" Grid.Row="0"  HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                                    <TextBlock Text="{Binding Profit, Converter={StaticResource PriceConverter}}" Grid.Row="1"  HorizontalAlignment="Right" TextWrapping="Wrap" FontSize="10" Foreground="#d1d1d1"/>
+                                                    <TextBlock Text="{Binding SellPrice, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#d1d1d1" Padding="3" FontSize="18"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn Width="*" Header="Profit">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Rectangle Fill="#424242" Grid.RowSpan="2"/>
+                                                    <TextBlock Text="{Binding Profit, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="#d1d1d1" Padding="3"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>

@@ -21,11 +21,11 @@ namespace PSO2ShopAid
 
             if (price.RawPrice < 1000000)
             {
-                return $"{price.priceK}k";
+                return $"{Math.Round(price.priceK, 3)}k";
             }
             else
             {
-                return $"{price.priceM}m";
+                return $"{Math.Round(price.priceM, 3)}m";
             }
         }
 
@@ -194,6 +194,11 @@ namespace PSO2ShopAid
                 return "-";
             }
             TimeSpan time = (TimeSpan)value;
+            if (time.TotalDays < 0)
+            {
+                return $"{-time.Days}d, {-time.Hours}h later";
+            }
+
             if (time.TotalHours < 1)
             {
                 return $"Updated {time.Minutes} minutes ago";
@@ -226,15 +231,15 @@ namespace PSO2ShopAid
             TimeSpan time = (TimeSpan)value;
             if (time.TotalHours < 1)
             {
-                return $"{time.Minutes}min ago";
+                return $"{time.Minutes}min";
             }
             else if (time.TotalDays < 1)
             {
-                return $"{time.Hours}h ago";
+                return $"{time.Hours}h";
             }
             else
             {
-                return $"{time.Days}d {time.Hours}h ago";
+                return $"{time.Days}d {time.Hours}h";
             }
         }
 
@@ -245,7 +250,7 @@ namespace PSO2ShopAid
     }
 
     [ValueConversion(typeof(bool), typeof(string))]
-    public class DidPurchaseConverter : IValueConverter
+    public class EncounterToColourConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -253,10 +258,16 @@ namespace PSO2ShopAid
             {
                 return "#ffffff";
             }
-            bool didPurchase = (bool)value;
-            if (didPurchase)
+            Encounter encounter = (Encounter)value;
+
+            if (encounter.DidPurchase)
             {
                 return "#fcf403";
+            }
+
+            if (encounter.IsSell)
+            {
+                return "#fc0d39";
             }
 
             return "#e6e6e6";

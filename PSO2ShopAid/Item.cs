@@ -76,12 +76,25 @@ namespace PSO2ShopAid
             }
         }
 
-        public Price AveragePurchasePrice
+        public Price AverageUnsoldPurchasePrice
         {
             get
             {
                 List<Price> unsoldPrices = GetUnsoldPurchasePriceRecords();
                 return unsoldPrices.Count == 0 ? new Price(0) : unsoldPrices.Average();
+            }
+        }
+
+        public Price AveragePurchasePrice
+        {
+            get
+            {
+                if (Investments.Count == 0)
+                {
+                    return new Price(0);
+                }
+                float averageRaw = Investments.Average(i => i.PurchasePrice.RawPrice);
+                return new Price(averageRaw);
             }
         }
 
@@ -139,7 +152,7 @@ namespace PSO2ShopAid
                     return new Tuple<Price, DateTime>(new Price(0), default);
                 }
 
-                Encounter latest = Encounters[Encounters.Count - 1];
+                Encounter latest = Encounters.First();
 
                 return new Tuple<Price, DateTime>(latest.price, latest.date);
             }
@@ -202,7 +215,7 @@ namespace PSO2ShopAid
         {
             get
             {
-                return AveragePurchasePrice.RawPrice == 0 ? AveragePurchasePrice : LatestPrice.Subtract(AveragePurchasePrice);
+                return AverageUnsoldPurchasePrice.RawPrice == 0 ? AverageUnsoldPurchasePrice : LatestPrice.Subtract(AverageUnsoldPurchasePrice);
             }
         }
 
@@ -210,7 +223,7 @@ namespace PSO2ShopAid
         {
             get
             {
-                return (float)Math.Round(LatestPrice.PercentOf(AveragePurchasePrice));
+                return (float)Math.Round(LatestPrice.PercentChange(AverageUnsoldPurchasePrice));
             }
         }
 
@@ -269,7 +282,7 @@ namespace PSO2ShopAid
         public void Purchase(Price price, DateTime time = default)
         {
             Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
-            Encounter newEncounter = time == default ? new Encounter(price, newInvestment) : new Encounter(price, time, newInvestment);
+            Encounter newEncounter = time == default ? new Encounter(price, purchase: newInvestment) : new Encounter(price, time, purchase: newInvestment);
 
             Investments.Insert(0, newInvestment);
             Encounters.Insert(0, newEncounter);
@@ -293,7 +306,7 @@ namespace PSO2ShopAid
                     break;
                 }
             }
-            Encounter newEncounter = time == default ? new Encounter(price) : new Encounter(price, time);
+            Encounter newEncounter = time == default ? new Encounter(price, sold: true) : new Encounter(price, time, sold: true);
             Encounters.Insert(0, newEncounter);
             this.NotifyChanged();
         }
@@ -323,6 +336,29 @@ namespace PSO2ShopAid
             // else if we've reached the end without inserting, then it is earlier than all other dates (or the list is empty)
             // and we want to insert it at the end anyway
             RevivalDates.Add(newDate);
+        }
+
+        public void RemoveRevivalDate(DateTime toRemove)
+        {
+            if (toRemove == null || RevivalDates == null || RevivalDates.Count == 0)
+            {
+                return;
+            }
+
+            RevivalDates.Remove(toRemove);
+        }
+
+        public void RemoveRevivalDate(List<DateTime> toRemove)
+        {
+            if (toRemove == null || toRemove.Count == 0 || RevivalDates == null || RevivalDates.Count == 0)
+            {
+                return;
+            }
+
+            foreach(DateTime date in toRemove)
+            {
+                RevivalDates.Remove(date);
+            }
         }
 
         public override string ToString()
