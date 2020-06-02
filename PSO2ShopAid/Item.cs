@@ -298,14 +298,22 @@ namespace PSO2ShopAid
 
         public void Sell(Price price, DateTime time = default)
         {
-            foreach (Investment investment in Investments)
+            if (Investments.Count == 0)
             {
+                return;
+            }
+
+            // the oldest investment is at the last of the list, so loop starting at the back
+            for (int i = Investments.Count - 1; i >= 0; i++)
+            {
+                Investment investment = Investments[i];
                 if (!investment.IsSold) // get the oldest unsold investment
                 {
                     investment.Sell(price);
                     break;
                 }
             }
+
             Encounter newEncounter = time == default ? new Encounter(price, sold: true) : new Encounter(price, time, sold: true);
             Encounters.Insert(0, newEncounter);
             this.NotifyChanged();
