@@ -31,6 +31,47 @@ namespace PSO2ShopAid
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                string priceString = value as string;
+                float price = float.Parse(priceString);
+                return new Price(price);
+            }
+            catch
+            {
+                return new Price(0);
+            }
+        }
+    }
+
+    [ValueConversion(typeof(Price), typeof(string))]
+    public class PriceToColourConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return "-";
+            }
+            Price price = (Price)value;
+
+            if (price.RawPrice < 0)
+            {
+                return "#ff4a89";
+            }
+            else
+            {
+                return "#66ff69";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }

@@ -2,8 +2,39 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PSO2ShopAid"
+              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="Indigo" SecondaryColor="LightGreen" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PopupBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Card.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Flipper.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Custom Palette -->
+            <!-- primary --><!--
+            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#4fd9ff"/>
+            <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#605094"/>
+            <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="#e6deff"/>
+            <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#454545"/>
+            <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="#954aff"/>
+            --><!-- accent --><!--
+            <SolidColorBrush x:Key="SecondaryAccentBrush" Color="#5C5B5E"/>
+            <SolidColorBrush x:Key="SecondaryAccentForegroundBrush" Color="#FFFFFF"/>-->
+            
+            <!-- Custom Colours -->
+            <SolidColorBrush x:Key="DarkGrey" Color="#171717"/>
+            <SolidColorBrush x:Key="MidGrey" Color="#474747"/>
+            <SolidColorBrush x:Key="LuciasBlue" Color="#bdf1ff" />
+            <SolidColorBrush x:Key="LuciasBlueMid" Color="#63deff" />
+            <SolidColorBrush x:Key="LuciasSubtle" Color="#99c1c9" />
+            <SolidColorBrush x:Key="BabyIndigo" Color="#cfccff" />
+            <SolidColorBrush x:Key="LightGreen" Color="#c4ffcb" />
+            <SolidColorBrush x:Key="MessiahPink" Color="#ff4a89" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

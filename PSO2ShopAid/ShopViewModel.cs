@@ -79,7 +79,6 @@ namespace PSO2ShopAid
                 }
             }
 
-            newItem.Log(price);
             if (isPurchase)
             { 
                 newItem.Purchase(price);

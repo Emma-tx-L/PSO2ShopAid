@@ -67,15 +67,34 @@ namespace PSO2ShopAid
                 }
             }
 
+            Inventory.Items.Refresh(); // hackery to force refresh items
+
             await Task.Delay(addItemTimeout);
             isAddingItem = false;
         }
 
-        private void OpenItem(object sender, MouseButtonEventArgs e)
+        private void OpenTrackedItem(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount >= 2)
             {
                 Item item = (Item)TrackedItems.SelectedItem;
+
+                if (OpenItemWindows.Contains(item.NameEN))
+                {
+                    return;
+                }
+
+                ItemWindow itemWindow = new ItemWindow(item, this);
+                OpenItemWindows.Add(item.NameEN);
+                itemWindow.Show();
+            }
+        }
+
+        private void OpenInventoryItem(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2)
+            {
+                Item item = (Item)Inventory.SelectedItem;
 
                 if (OpenItemWindows.Contains(item.NameEN))
                 {

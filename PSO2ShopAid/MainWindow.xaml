@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:PSO2ShopAid"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="PSO2 Shop Aid" Height="500" Width="800">
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="Ink Free"
+        Title="PSO2 Shop Aid" Height="800" Width="800">
     <Window.Resources>
         <!-- Converters -->
         <local:PriceConverter x:Key="PriceConverter" />
@@ -37,84 +43,182 @@
     
     <Border Margin="10">
         <Grid>
+            <Grid Margin="0,61,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid  Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                
                 <!-- Tracked Items List -->
-                <ListBox Grid.Row="0" ItemsSource="{Binding Items}" SelectionMode="Single" Name="TrackedItems">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Vertical"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Margin" Value="6"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
+                <DockPanel Grid.Column="0" Margin="0 0 5 0">
+                    <TextBox DockPanel.Dock="Top" Text="Tracked Items: " FontSize="20"  Background="Transparent" Foreground="{StaticResource LuciasBlue}"/>
+                    <ListBox ItemsSource="{Binding Items}" SelectionMode="Single" Name="TrackedItems">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="6"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
 
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Delete" Click="DeleteItem"></MenuItem>
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Delete" Click="DeleteItem"></MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <!-- Item Card Template -->
-                            <Border BorderBrush="{Binding Colour}" BorderThickness="3">
-                                <Grid Width="350" Background="#363636" MouseDown="OpenItem">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="5"/>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Rectangle Grid.Column="0" Grid.RowSpan="2" Fill="{Binding Colour}"></Rectangle>
-                                    <TextBlock Text="{Binding NameEN}" FontFamily="Ink Free" FontSize="16" VerticalAlignment="Center" Margin="10 5" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Foreground="#ffffff"/>
-                                    <TextBlock Text="{Binding LatestPrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.RowSpan="2" FontFamily="Ink Free" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 5 10" TextWrapping="Wrap" FontWeight="Bold" Foreground="#ff5e5e"/>
-                                    <TextBlock Text="{Binding AveragePrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                    <TextBlock Text="{Binding TimeSinceUpdate, Converter={StaticResource TimeSinceConverter}}" Grid.Column="1" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-
-                <DockPanel Grid.Row="1">
-                    <xctk:ColorPicker Name="NewItem_Colour" Height="30" Width="50"  DockPanel.Dock="Left"/>
-                    <Button DockPanel.Dock="Right" Height="30" Content="Add Item" Click="AddNewItem"/>
-                    
-                    <ComboBox ItemsSource="{Binding PriceSuffixes}" Height="30" DockPanel.Dock="Right" SelectedIndex="0" Name="NewItem_PriceSuffix">
-                        <ComboBox.ItemTemplate>
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}"/>
+                                <!-- Item Card Template -->
+                                <Border BorderBrush="{Binding Colour}" BorderThickness="3">
+                                    <Grid Width="350" Background="#363636" MouseDown="OpenTrackedItem">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Rectangle Grid.Column="0" Grid.RowSpan="2" Fill="{Binding Colour}"></Rectangle>
+                                        <TextBlock Text="{Binding NameEN}" FontFamily="Ink Free" FontSize="16" VerticalAlignment="Center" Margin="10 5" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Foreground="#ffffff"/>
+                                        <TextBlock Text="{Binding LatestPrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.RowSpan="2" FontFamily="Ink Free" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 5 10" TextWrapping="Wrap" FontWeight="Bold" Foreground="#ff5e5e"/>
+                                        <TextBlock Text="{Binding AveragePrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                        <TextBlock Text="{Binding TimeSinceUpdate, Converter={StaticResource TimeSinceConverter}}" Grid.Column="1" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    <CheckBox Height="30" DockPanel.Dock="Right" Name="NewItem_IsPurchase"></CheckBox>
-                    <TextBox Height="30" Width="100" Name="NewItem_Price" DockPanel.Dock="Right"/>
-                    
-                    <TextBox Name="NewItem_Name" Height="30" />
+                        </ListBox.ItemTemplate>
+                    </ListBox>                
                 </DockPanel>
-                
+                <!-- /End Tracked Items List -->
+
+                <!-- Stocked Items List -->
+                <DockPanel Grid.Column="1" Margin="5 0 0 0">
+                    <TextBox DockPanel.Dock="Top" Text="In Inventory: " FontSize="20"  Background="Transparent" Foreground="{StaticResource LuciasBlue}"/>
+                    <ListBox ItemsSource="{Binding Inventory}" SelectionMode="Single" Name="Inventory">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="6"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Delete" Click="DeleteItem"></MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Item Card Template -->
+                                <Border BorderBrush="{Binding Colour}" BorderThickness="3">
+                                    <Grid Width="350" Background="#363636" MouseDown="OpenInventoryItem">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Rectangle Grid.Column="0" Grid.RowSpan="2" Fill="{Binding Colour}"></Rectangle>
+                                        <TextBlock Text="{Binding NameEN}" FontFamily="Ink Free" FontSize="16" VerticalAlignment="Center" Margin="10 5" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Foreground="#ffffff"/>
+                                        <TextBlock Text="{Binding LatestPrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.RowSpan="2" FontFamily="Ink Free" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 0 5 10" TextWrapping="Wrap" FontWeight="Bold" Foreground="#ff5e5e"/>
+                                        <TextBlock Text="{Binding AveragePrice, Converter={StaticResource PriceConverter}}" Grid.Column="2" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                        <TextBlock Text="{Binding TimeSinceUpdate, Converter={StaticResource TimeSinceConverter}}" Grid.Column="1" Grid.Row="1" FontFamily="Ink Free" FontSize="10" VerticalAlignment="Center" Margin="10 0 0 5"  TextWrapping="Wrap" Foreground="#d1d1d1"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+                <!-- /End Stocked Items List -->
             </Grid>
 
-            <Button Grid.Column="1" Click="Button_Click">Save</Button>
-            
+            <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}" VerticalAlignment="Top" Width="300" DockPanel.Dock="Top">
+                <materialDesign:Flipper.FrontContent>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                        Command="{x:Static materialDesign:Flipper.FlipCommand}"
+                                Content="Add New Item"
+                                Foreground="{StaticResource SecondaryAccentBrush}"
+                                FontSize="20"
+                                FontWeight="ExtraBold"
+                        Margin="8" Width="192" Height="40"/>
+
+                </materialDesign:Flipper.FrontContent>
+                <materialDesign:Flipper.BackContent>
+                    <Grid Height="400" Width="250">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <materialDesign:ColorZone Mode="Accent" Padding="6">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource MaterialDesignToolForegroundButton}"
+                                    Command="{x:Static materialDesign:Flipper.FlipCommand}"
+                                    HorizontalAlignment="Left">
+                                    <materialDesign:PackIcon Kind="ArrowLeft" HorizontalAlignment="Right" />
+                                </Button>
+                                <TextBlock Margin="8 0 0 0" VerticalAlignment="Center" FontWeight="ExtraBlack" Foreground="{StaticResource PrimaryHueDarkBrush}">ADD ITEM</TextBlock>
+                            </StackPanel>
+                        </materialDesign:ColorZone>
+
+                        <Grid Grid.Row="1" Margin="0 6 0 0" HorizontalAlignment="Center" VerticalAlignment="Top"
+                          Width="172">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBox Grid.Row ="0" Name="NewItem_Name" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Enter the item name" 
+                                         Margin="0 12 0 0" />
+
+                            <DockPanel Grid.Row="1">
+                                <ComboBox ItemsSource="{Binding PriceSuffixes}" SelectedIndex="0" Name="NewItem_PriceSuffix"
+                                                Style="{DynamicResource MaterialDesignComboBox}" FontSize="25"
+                                                DockPanel.Dock="Right" VerticalAlignment="Bottom"/>
+                                <TextBox Name="NewItem_Price" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" 
+                                         materialDesign:HintAssist.Hint="Enter a price" Margin="0 12 0 0" />
+                            </DockPanel>
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 12 0 0" HorizontalAlignment="Right">
+                                <TextBlock VerticalAlignment="Center">Is Purchase?</TextBlock>
+                                <ToggleButton Name="NewItem_IsPurchase" Margin="8 0 0 0"></ToggleButton>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0 12 0 20" HorizontalAlignment="Right">
+                                <TextBlock VerticalAlignment="Center">Choose a colour ?</TextBlock>
+                                <xctk:ColorPicker Name="NewItem_Colour" Height="30" Width="45"  DockPanel.Dock="Left" Background="Transparent"/>
+                            </StackPanel>
+
+                            <Button DockPanel.Dock="Right" Grid.Row="4" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" 
+                                        Width="40" Height="40" Click="AddNewItem">
+                                <materialDesign:PackIcon Kind="Plus"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </materialDesign:Flipper.BackContent>
+            </materialDesign:Flipper>
         </Grid>
+
     </Border>
 </Window>

@@ -7,7 +7,13 @@
         xmlns:DVC="clr-namespace:System.Windows.Controls.DataVisualization.Charting.Compatible;assembly=System.Windows.Controls.DataVisualization.Toolkit"
         xmlns:DVC1="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="Ink Free"
         Title="{Binding NameEN}" Height="700" Width="1200">
 
     <Window.Resources>
@@ -22,29 +28,43 @@
         <local:DefaultDateToNowConverter x:Key="DefaultDateToNowConverter" />
         <local:TimeAgoConverter x:Key="TimeAgoConverter" />
         <local:TooltipPriceConverter x:Key="TooltipPriceConverter" />
+        <local:PriceToColourConverter x:Key="PriceToColourConverter" />
 
         <!-- Styles -->
-        <Style TargetType="TextBox">
+        <Style TargetType="TextBox" >
             <Setter Property="Padding" Value="5" />
-            <Setter Property="FontFamily" Value="Ink Free"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="IsReadOnly" Value="True" />
         </Style>
 
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#c099ff" />
+        <Style TargetType="DatePickerTextBox" x:Key="MaterialDesignDatePickerTextBox">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBlock />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        
+
+        <Style x:Key="{ComponentResourceKey ResourceId=DataGridSelectAllButtonStyle, TypeInTargetAssembly={x:Type DataGrid}}" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Polygon x:Name="Arrow" Fill="Transparent" Width="0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="TextBlock">
             <Setter Property="Padding" Value="5" />
-            <Setter Property="FontFamily" Value="Ink Free"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
 
         <Style TargetType="Button">
             <Setter Property="Padding" Value="5" />
-            <Setter Property="FontFamily" Value="Ink Free"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Background" Value="#35138a" />
             <Setter Property="Foreground" Value="White" />
@@ -59,8 +79,8 @@
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#3d334d"/>
-            <Setter Property="Foreground" Value="#dee5ff"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryHueMidBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryHueMidForegroundBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Padding" Value="3" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -126,38 +146,10 @@
         <Style x:Key="GraphLine" TargetType="Polyline">
             <Setter Property="Stroke" Value="#8c7dff"/>
         </Style>
-        <!--<TextBox DockPanel.Dock="Top" Text="{Binding NameEN, Mode=TwoWay}" FontSize="20" BorderThickness="0" Focusable="False" MouseDoubleClick="UpdateTextBox"/>-->
     </Window.Resources>
 
     <Border Margin="10">
         <DockPanel>
-            <!-- Item Actions -->
-            <Grid DockPanel.Dock="Bottom" Margin="50 15 50 0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <DockPanel Grid.Column="0">
-                    <ComboBox ItemsSource="{Binding}" Height="30" DockPanel.Dock="Right" SelectedIndex="0" Name="Item_NewPriceSuffix">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" FontWeight="DemiBold" FontSize="14"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    <TextBox Name="Item_NewPrice" BorderThickness="1" BorderBrush="#d1f6ff" IsReadOnly="False"/>
-                </DockPanel>
-
-                <Button Grid.Column="1" Content="Log" Margin="2" Click="LogEncounter"/>
-                <Button Grid.Column="2" Content="Purchase" Margin="2" Click="Purchase"/>
-                <Button Grid.Column="3" Content="Sell" Margin="2" Click="Sell"/>
-            </Grid>
-            <!-- /End Item Actions -->
-
-
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -168,48 +160,67 @@
                 <DockPanel Grid.Column="0" Margin="0 0 5 0">
 
                     <DockPanel DockPanel.Dock="Top" Margin="0 0 0 20">
-                        <TextBox DockPanel.Dock="Top" Text="{Binding NameEN}" FontSize="20"  MouseDoubleClick="EditTextBox" LostFocus="TextBoxLostFocus" KeyDown="ClearFocus"/>
-                        <TextBox DockPanel.Dock="Top" Text="{Binding NameJP}" FontSize="12" Padding="5 0" MouseDoubleClick="EditTextBox" LostFocus="TextBoxLostFocus" KeyDown="ClearFocus"/>
+                        <TextBox DockPanel.Dock="Top" Text="{Binding NameEN}" FontSize="20"  Background="Transparent" Foreground="{StaticResource LuciasBlue}"
+                                 MouseDoubleClick="EditTextBox" LostFocus="TextBoxLostFocus" KeyDown="ClearFocus"/>
+                        <TextBox DockPanel.Dock="Top" Text="{Binding NameJP}" FontSize="12" Background="Transparent" Foreground="{StaticResource LuciasBlueMid}"
+                                 MouseDoubleClick="EditTextBox" LostFocus="TextBoxLostFocus" KeyDown="ClearFocus"/>
+                        <!-- Item Actions -->
+                        <DockPanel Margin="0 0 0 20">
+                            <materialDesign:PopupBox Style="{DynamicResource MaterialDesignMultiFloatingActionAccentPopupBox}" 
+                                                     PlacementMode="BottomAndAlignCentres" Margin="20 0" DockPanel.Dock="Right"
+                                                     Width="40" Height="40">
+                                <StackPanel>
+                                    <Button Grid.Column="1" Click="LogEncounter" ToolTip="Log">
+                                        <Viewbox Width="25" Height="25">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{StaticResource LuciasBlue}" Data="M20.7,7C21.1,6.6 21.1,6 20.7,5.6L18.4,3.3C18,2.9 17.4,2.9 17,3.3L15.2,5.1L19,8.9M3,17.2V21H6.8L17.8,9.9L14.1,6.1L3,17.2M7,2V5H10V7H7V10H5V7H2V5H5V2H7Z" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Button>
+                                    <Button Grid.Column="2" Click="Purchase" ToolTip="Buy">
+                                        <Viewbox Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{StaticResource SecondaryAccentBrush}" Data="M10,0V4H8L12,8L16,4H14V0M1,2V4H3L6.6,11.59L5.25,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42C7.29,15 7.17,14.89 7.17,14.75L7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.59 17.3,11.97L21.16,4.96L19.42,4H19.41L18.31,6L15.55,11H8.53L8.4,10.73L6.16,6L5.21,4L4.27,2M7,18A2,2 0 0,0 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20A2,2 0 0,0 7,18M17,18A2,2 0 0,0 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20A2,2 0 0,0 17,18Z" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Button>
+                                    <Button Grid.Column="3" Click="Sell" ToolTip="Sell">
+                                        <Viewbox Width="25" Height="25">
+                                            <Canvas Width="24" Height="24">
+                                                <Path Fill="{StaticResource MessiahPink}" Data="M12,0L8,4H10V8H14V4H16M1,2V4H3L6.6,11.59L5.25,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42C7.29,15 7.17,14.89 7.17,14.75L7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.59 17.3,11.97L21.16,4.96L19.42,4H19.41L18.31,6L15.55,11H8.53L8.4,10.73L6.16,6L5.21,4L4.27,2M7,18A2,2 0 0,0 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20A2,2 0 0,0 7,18M17,18A2,2 0 0,0 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20A2,2 0 0,0 17,18Z" />
+                                            </Canvas>
+                                        </Viewbox>
+                                    </Button>
+                                </StackPanel>
+                            </materialDesign:PopupBox>
+                            <ComboBox ItemsSource="{Binding}" SelectedIndex="0" Name="Item_NewPriceSuffix"
+                                  Style="{DynamicResource MaterialDesignComboBox}" FontSize="25"
+                                  VerticalAlignment="Bottom" DockPanel.Dock="Right"/>
+                            <TextBox Name="Item_NewPrice" IsReadOnly="False"
+                                    Style="{DynamicResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Enter a price" 
+                                    HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="18"/>
+                        </DockPanel>
+                        <!-- /End Item Actions -->
                     </DockPanel>
 
                     <DockPanel DockPanel.Dock="Top" Margin="0 0 0 10">
                         <DockPanel DockPanel.Dock="Top">
                             <TextBlock DockPanel.Dock="Left" Text="Released:" FontSize="14"/>
-                            <DatePicker DockPanel.Dock="Right" SelectedDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
-                                        SelectedDateChanged="UpdateReleaseDate">
-                                <DatePicker.Resources>
-                                    <Style TargetType="{x:Type DatePickerTextBox}">
-                                        <Setter Property="Control.Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <TextBlock />
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DatePicker.Resources>
-                            </DatePicker>
-
+                            <DatePicker Style="{DynamicResource MaterialDesignFilledDatePicker}" DockPanel.Dock="Right" SelectedDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
+                                        SelectedDateChanged="UpdateReleaseDate" />
                             <TextBlock Text="{Binding ReleaseDate}" FontSize="14"/>
                         </DockPanel>
 
                         <DockPanel DockPanel.Dock="Top">
-                            <TextBlock DockPanel.Dock="Bottom" Text="{Binding TimeSinceLastAvailable, Converter={StaticResource TimeSinceConverter}}" FontSize="12"/>
+                            <TextBlock DockPanel.Dock="Bottom" Text="{Binding TimeSinceLastAvailable, Converter={StaticResource TimeSinceConverter}}" FontSize="12"
+                                       Foreground="{StaticResource LuciasSubtle}"/>
                             <TextBlock DockPanel.Dock="Left" Text="Revivals:" FontSize="14"/>
                             <DatePicker DockPanel.Dock="Right" SelectedDate="{x:Static System:DateTime.Now}"
-                                        SelectedDateChanged="AddRevivalDate">
-                                <DatePicker.Resources>
-                                    <Style TargetType="{x:Type DatePickerTextBox}">
-                                        <Setter Property="Control.Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <TextBlock />
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DatePicker.Resources>
-                            </DatePicker>
+                                        SelectedDateChanged="AddRevivalDate"
+                                        Style="{DynamicResource MaterialDesignFilledDatePicker}"
+                                        Background="Red"/>
+
+
 
                             <ListView ItemsSource="{Binding RevivalDates}" BorderBrush="Transparent" Margin="0 0 10 0" Name="RevivalsListView">
                                 <ListView.ItemTemplate>
@@ -218,13 +229,8 @@
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                                 <ListView.ContextMenu>
-                                    <ContextMenu Background="#fc0d59">
-                                        <MenuItem Header="Delete" Click="DeleteRevivalDate" 
-                                                  Background="#520000"
-                                                  FontFamily="Ink Free"
-                                                  Foreground="#ffa1bf"
-                                                  BorderBrush="#ffa1bf"
-                                                  BorderThickness="0.5"/>
+                                    <ContextMenu Style="{DynamicResource MaterialDesignContextMenu}">
+                                        <MenuItem Header="Delete" Click="DeleteRevivalDate" Style="{DynamicResource MaterialDesignMenuItem}"/>
                                     </ContextMenu>
                                 </ListView.ContextMenu>
                             </ListView>
@@ -233,15 +239,13 @@
 
                     <DockPanel Grid.Row="2" Margin="0 10">
                         <TextBlock DockPanel.Dock="Top" Text="Logs:" FontSize="18"/>
-                        <DataGrid Margin="0 0 10 0" ItemsSource="{Binding Encounters}" Name="ItemEncountersGrid">
+                        <DataGrid Margin="0 0 10 0" ItemsSource="{Binding Encounters}" Name="ItemEncountersGrid" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Width="*" Header="Price">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Grid>
-                                                <Rectangle Fill="#424242"/>
-                                                <TextBlock Text="{Binding price, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="18" Foreground="#d1d1d1"/>
-                                            </Grid>
+                                            <TextBlock Text="{Binding price, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                       TextWrapping="Wrap" FontSize="18" Foreground="{StaticResource LightGreen}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -249,10 +253,8 @@
                                 <DataGridTemplateColumn Width="*" Header="Date">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Grid>
-                                                <Rectangle Fill="#424242"/>
-                                                <TextBlock Text="{Binding date, Converter={StaticResource ShortDateConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                            </Grid>
+                                            <TextBlock Text="{Binding date, Converter={StaticResource ShortDateConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                       TextWrapping="Wrap" Foreground="{StaticResource LuciasSubtle}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -271,7 +273,7 @@
                             TitleStyle="{StaticResource InvisibleChartTitle}"
                             Background="#292929"
                             LegendStyle="{StaticResource InvisibleLegend}"
-                            >
+                            BorderThickness="0">
 
                             <DVC1:Chart.Axes>
                                 <DVC1:LinearAxis Orientation="Y" Foreground="WhiteSmoke" AxisLabelStyle="{StaticResource PriceAxis}"/>
@@ -279,7 +281,7 @@
                             </DVC1:Chart.Axes>
 
                             <DVC:LineSeries LegendItemStyle="{StaticResource InvisibleLegendItem}" Name="TrendChart"
-                                            Background="#474747"
+                                            Background="{StaticResource MidGrey}"
                                             ItemsSource="{Binding Encounters}"
                                             IndependentValueBinding="{Binding date}"
                                             DependentValueBinding="{Binding price.RawPrice}"
@@ -300,25 +302,31 @@
                         <DockPanel Grid.Column="0">
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Stock:" FontSize="18"/>
-                                <TextBlock Text="{Binding Stock}" DockPanel.Dock="Left" FontSize="18" Margin="0 0 10 0"/>
+                                <TextBlock Text="{Binding Stock}" DockPanel.Dock="Left" FontSize="18" Margin="0 0 10 0"
+                                           Foreground="{StaticResource SecondaryAccentBrush}"/>
                             </DockPanel>
 
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Total Profit:" FontSize="15"/>
-                                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="15" Margin="0 0 10 0"/>
+                                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="15" Margin="0 0 10 0"
+                                           Foreground="{Binding TotalProfit, Converter={StaticResource PriceToColourConverter}}"/>
                             </DockPanel>
 
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Last purchased:" FontSize="15"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{Binding TimeSinceLastPurchase, Converter={StaticResource TimeAgoConverter}}" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding TimeSinceLastPurchase, Converter={StaticResource TimeAgoConverter}}" 
+                                           Foreground="{StaticResource LuciasSubtle}"  FontSize="15"/>
                                 <TextBlock DockPanel.Dock="Left" Text="ago" FontSize="15"/>
                             </DockPanel>
 
                             <DockPanel>
                                 <TextBlock DockPanel.Dock="Top" Text="Approx. Current Profit:" FontSize="18"/>
-                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 40 0"/>
-                                <TextBlock Text="{Binding ApproximateCurrentProfitPercent}" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold"/>
-                                <TextBlock Text="%" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"/>
+                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" 
+                                           FontSize="24" FontWeight="Bold" Margin="0 0 40 0" Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
+                                <TextBlock Text="{Binding ApproximateCurrentProfitPercent}" DockPanel.Dock="Left" 
+                                           FontSize="24" FontWeight="Bold" Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
+                                <TextBlock Text="%" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"
+                                           Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
                             </DockPanel>
 
                         </DockPanel>
@@ -333,17 +341,20 @@
 
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Max Price:" FontSize="15"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{Binding MaxPrice.Item1, Converter={StaticResource PriceConverter}}" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding MaxPrice.Item1, Converter={StaticResource PriceConverter}}" 
+                                           Foreground="{StaticResource LightGreen}"  FontSize="15"/>
                             </DockPanel>
 
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Left" Text="Min Price:" FontSize="15"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{Binding MinPrice.Item1, Converter={StaticResource PriceConverter}}" FontSize="15"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding MinPrice.Item1, Converter={StaticResource PriceConverter}}"
+                                           Foreground="{StaticResource MessiahPink}" FontSize="15"/>
                             </DockPanel>
 
                             <DockPanel DockPanel.Dock="Top" Margin="0 0 0 5">
                                 <TextBlock DockPanel.Dock="Top" Text="Average Purchase Price:" FontSize="18"/>
-                                <TextBlock Text="{Binding AveragePurchasePrice, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Bottom" FontSize="18" FontWeight="Bold" Margin="10 0 10 10"/>
+                                <TextBlock Text="{Binding AveragePurchasePrice, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Bottom" 
+                                           Foreground="{StaticResource BabyIndigo}" FontSize="18" FontWeight="Bold" Margin="10 0 10 10"/>
                             </DockPanel>
 
                         </DockPanel>
@@ -356,10 +367,8 @@
                                     <DataGridTemplateColumn Width="*" Header="Price">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Grid>
-                                                    <Rectangle Fill="#424242" />
-                                                    <TextBlock Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#d1d1d1" Padding="5" FontSize="18"/>
-                                                </Grid>
+                                                    <TextBlock Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" TextWrapping="Wrap" 
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource LightGreen}" Padding="5" FontSize="18"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -367,20 +376,16 @@
                                     <DataGridTemplateColumn Width="*" Header="Buy Date">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Grid>
-                                                    <Rectangle Fill="#424242" />
-                                                    <TextBlock Text="{Binding PurchaseDate, Converter={StaticResource VeryShortDateConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="10" Foreground="#d1d1d1" Padding="2"/>
-                                                </Grid>
+                                                    <TextBlock Text="{Binding PurchaseDate, Converter={StaticResource VeryShortDateConverter}}" HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" TextWrapping="Wrap" FontSize="10" Foreground="{StaticResource LuciasSubtle}" Padding="2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTemplateColumn Width="*" Header="Flip Time">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Grid>
-                                                    <Rectangle Fill="#424242"/>
-                                                    <TextBlock Text="{Binding DaysToFlip, Converter={StaticResource TimeAgoConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#d1d1d1"/>
-                                                </Grid>
+                                                    <TextBlock Text="{Binding DaysToFlip, Converter={StaticResource TimeAgoConverter}}" HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource BabyIndigo}"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -388,10 +393,8 @@
                                     <DataGridTemplateColumn Width="*" Header="Sold At">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Grid>
-                                                    <Rectangle Fill="#424242" Grid.RowSpan="2"/>
-                                                    <TextBlock Text="{Binding SellPrice, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#d1d1d1" Padding="3" FontSize="18"/>
-                                                </Grid>
+                                                    <TextBlock Text="{Binding SellPrice, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource LightGreen}" Padding="3" FontSize="18"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -399,10 +402,8 @@
                                     <DataGridTemplateColumn Width="*" Header="Profit">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Grid>
-                                                    <Rectangle Fill="#424242" Grid.RowSpan="2"/>
-                                                    <TextBlock Text="{Binding Profit, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="#d1d1d1" Padding="3"/>
-                                                </Grid>
+                                                    <TextBlock Text="{Binding Profit, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="{Binding Profit, Converter={StaticResource PriceToColourConverter}}" Padding="3"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>

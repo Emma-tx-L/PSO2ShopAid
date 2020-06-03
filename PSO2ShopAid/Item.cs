@@ -304,7 +304,7 @@ namespace PSO2ShopAid
             }
 
             // the oldest investment is at the last of the list, so loop starting at the back
-            for (int i = Investments.Count - 1; i >= 0; i++)
+            for (int i = (Investments.Count - 1); i >= 0; i--)
             {
                 Investment investment = Investments[i];
                 if (!investment.IsSold) // get the oldest unsold investment
@@ -403,6 +403,12 @@ namespace PSO2ShopAid
             {
                 investment.NotifyPropertyChanged(property.Name);
             }
+        }
+
+        public static void NotifyDatesChanged(this Item item)
+        {
+            item.NotifyPropertyChanged(nameof(item.ReleaseDate));
+            item.NotifyPropertyChanged(nameof(item.TimeSinceLastAvailable));
         }
     }
 }
