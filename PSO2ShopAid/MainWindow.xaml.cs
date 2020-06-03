@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,7 +68,14 @@ namespace PSO2ShopAid
                 }
             }
 
+            NewItem_Name.Clear();
+            NewItem_Price.Clear();
+            NewItem_PriceSuffix.SelectedIndex = 0;
+            NewItem_Colour.SelectedColor = default;
+            NewItem_IsPurchase.IsChecked = false;
             Inventory.Items.Refresh(); // hackery to force refresh items
+
+            MessageBox.Show($"Added {name}!");
 
             await Task.Delay(addItemTimeout);
             isAddingItem = false;

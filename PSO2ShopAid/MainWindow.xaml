@@ -17,7 +17,7 @@
         <!-- Converters -->
         <local:PriceConverter x:Key="PriceConverter" />
         <local:TimeSinceConverter x:Key="TimeSinceConverter" />
-        
+
         <!-- Styles -->
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="5" />
@@ -39,15 +39,19 @@
             <Setter Property="Foreground" Value="White" />
         </Style>
     </Window.Resources>
-    
-    
+
+
     <Border Margin="10">
         <Grid>
-            <Grid Margin="0,61,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="101*"/>
+                <ColumnDefinition Width="92*"/>
             </Grid.ColumnDefinitions>
+            <Grid Margin="0,71,0,0" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
                 <!-- Tracked Items List -->
                 <DockPanel Grid.Column="0" Margin="0 0 5 0">
@@ -95,7 +99,7 @@
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                    </ListBox>                
+                    </ListBox>
                 </DockPanel>
                 <!-- /End Tracked Items List -->
 
@@ -150,37 +154,32 @@
                 <!-- /End Stocked Items List -->
             </Grid>
 
-            <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}" VerticalAlignment="Top" Width="300" DockPanel.Dock="Top">
+            <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}" VerticalAlignment="Top" Grid.ColumnSpan="2">
                 <materialDesign:Flipper.FrontContent>
-                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
                         Command="{x:Static materialDesign:Flipper.FlipCommand}"
                                 Content="Add New Item"
-                                Foreground="{StaticResource SecondaryAccentBrush}"
                                 FontSize="20"
                                 FontWeight="ExtraBold"
-                        Margin="8" Width="192" Height="40"/>
-
+                                materialDesign:ButtonAssist.CornerRadius="25 25 0 0"
+                        Margin="10" Width="Auto" Height="50"/>
                 </materialDesign:Flipper.FrontContent>
                 <materialDesign:Flipper.BackContent>
-                    <Grid Height="400" Width="250">
+                    <Grid Height="400" Width="Auto" Margin="10">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <materialDesign:ColorZone Mode="Accent" Padding="6">
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource MaterialDesignToolForegroundButton}"
-                                    Command="{x:Static materialDesign:Flipper.FlipCommand}"
-                                    HorizontalAlignment="Left">
-                                    <materialDesign:PackIcon Kind="ArrowLeft" HorizontalAlignment="Right" />
-                                </Button>
-                                <TextBlock Margin="8 0 0 0" VerticalAlignment="Center" FontWeight="ExtraBlack" Foreground="{StaticResource PrimaryHueDarkBrush}">ADD ITEM</TextBlock>
-                            </StackPanel>
-                        </materialDesign:ColorZone>
+                        <Button Style="{StaticResource MaterialDesignRaisedAccentButton}" materialDesign:ShadowAssist.ShadowDepth="Depth0" Height="50"
+                                    materialDesign:ButtonAssist.CornerRadius="25 25 0 0" Command="{x:Static materialDesign:Flipper.FlipCommand}" Padding="6">
+                            <TextBlock Margin="8 0 0 0" VerticalAlignment="Center"  FontSize="20"
+                                FontWeight="ExtraBold" Foreground="{StaticResource PrimaryHueDarkBrush}">ADD ITEM</TextBlock>
+                        </Button>
+
 
                         <Grid Grid.Row="1" Margin="0 6 0 0" HorizontalAlignment="Center" VerticalAlignment="Top"
-                          Width="172">
+                          Width="400">
                             <Grid.RowDefinitions>
                                 <RowDefinition />
                                 <RowDefinition />
@@ -190,28 +189,28 @@
                             </Grid.RowDefinitions>
 
                             <TextBox Grid.Row ="0" Name="NewItem_Name" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Enter the item name" 
-                                         Margin="0 12 0 0" />
+                                        FontSize="20" Margin="0 12 0 0" />
 
                             <DockPanel Grid.Row="1">
                                 <ComboBox ItemsSource="{Binding PriceSuffixes}" SelectedIndex="0" Name="NewItem_PriceSuffix"
                                                 Style="{DynamicResource MaterialDesignComboBox}" FontSize="25"
                                                 DockPanel.Dock="Right" VerticalAlignment="Bottom"/>
                                 <TextBox Name="NewItem_Price" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" 
-                                         materialDesign:HintAssist.Hint="Enter a price" Margin="0 12 0 0" />
+                                         materialDesign:HintAssist.Hint="Enter a price (optional)" Margin="0 12 0 0" FontSize="20" />
                             </DockPanel>
 
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 12 0 0" HorizontalAlignment="Right">
-                                <TextBlock VerticalAlignment="Center">Is Purchase?</TextBlock>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 20 0 0" HorizontalAlignment="Right">
+                                <TextBlock VerticalAlignment="Center" FontSize="16">Is Purchase?</TextBlock>
                                 <ToggleButton Name="NewItem_IsPurchase" Margin="8 0 0 0"></ToggleButton>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0 12 0 20" HorizontalAlignment="Right">
-                                <TextBlock VerticalAlignment="Center">Choose a colour ?</TextBlock>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0 12 0 25" HorizontalAlignment="Right">
+                                <TextBlock VerticalAlignment="Center" FontSize="16" Margin="0 0 10 0">Choose a colour (optional)</TextBlock>
                                 <xctk:ColorPicker Name="NewItem_Colour" Height="30" Width="45"  DockPanel.Dock="Left" Background="Transparent"/>
                             </StackPanel>
 
                             <Button DockPanel.Dock="Right" Grid.Row="4" Style="{StaticResource MaterialDesignFloatingActionAccentButton}" 
-                                        Width="40" Height="40" Click="AddNewItem">
+                                    Click="AddNewItem" Name="AddItemButton">
                                 <materialDesign:PackIcon Kind="Plus"/>
                             </Button>
                         </Grid>
