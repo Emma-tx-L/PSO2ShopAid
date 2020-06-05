@@ -167,7 +167,7 @@
                         <!-- Item Actions -->
                         <DockPanel Margin="0 0 0 20">
                             <materialDesign:PopupBox Style="{DynamicResource MaterialDesignMultiFloatingActionAccentPopupBox}" 
-                                                     PlacementMode="BottomAndAlignCentres" Margin="20 0" DockPanel.Dock="Right"
+                                                     PlacementMode="BottomAndAlignCentres" Margin="20 0 50 0" DockPanel.Dock="Right"
                                                      Width="40" Height="40">
                                 <StackPanel>
                                     <Button Grid.Column="1" Click="LogEncounter" ToolTip="Log">

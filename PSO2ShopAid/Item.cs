@@ -9,14 +9,6 @@ namespace PSO2ShopAid
 {
     public class Item : BaseViewModel
     {
-        public string NameEN { get; set; }
-        public string NameJP { get; set; }
-        public DateTime ReleaseDate { get; set; }
-        public ObservableCollection<DateTime> RevivalDates { get; set; }
-        public ObservableCollection<Investment> Investments { get; set; }
-        public ObservableCollection<Encounter> Encounters { get; set; }
-        public string Colour { get; set; }
-
         public Item(string nameEN)
         {
             NameEN = nameEN;
@@ -50,6 +42,55 @@ namespace PSO2ShopAid
             Encounters = new ObservableCollection<Encounter>(encounters);
             Colour = col;
         }
+
+        private string _nameEN;
+        private string _nameJP;
+        private DateTime _releaseDate;
+        private ObservableCollection<DateTime> _revivalDates;
+        private ObservableCollection<Investment> _investments;
+        private ObservableCollection<Encounter> _encounters;
+
+        public string NameEN { get => _nameEN; set { _nameEN = value; NotifyPropertyChanged(); } }
+        public string NameJP { get => _nameJP; set { _nameJP = value; NotifyPropertyChanged(); } }
+        public DateTime ReleaseDate
+        {
+            get => _releaseDate;
+            set
+            {
+                _releaseDate = value != null? value : DateTime.Now;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
+            }
+        }
+        public ObservableCollection<DateTime> RevivalDates
+        {
+            get => _revivalDates;
+            set
+            {
+                _revivalDates = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
+            }
+        }
+        public ObservableCollection<Investment> Investments
+        {
+            get => _investments;
+            set
+            {
+                _investments = value;
+                this.NotifyChanged();
+            }
+        }
+        public ObservableCollection<Encounter> Encounters
+        {
+            get => _encounters;
+            set
+            {
+                _encounters = value;
+                this.NotifyChanged();
+            }
+        }
+        public string Colour { get; set; }
 
         public int Stock
         {
@@ -231,6 +272,8 @@ namespace PSO2ShopAid
         {
             get
             {
+                // this will always calculate from the revival dates if present
+                // as the release date should NEVER be more recent than revivals
                 if (RevivalDates.Count > 0)
                 {
                     DateTime recent = default;
@@ -337,6 +380,7 @@ namespace PSO2ShopAid
                 if (RevivalDates[i].Date < newDate.Date) // traverse until we find a date smaller than the current date
                 {
                     RevivalDates.Insert(i, newDate); //insert the current date here
+                    NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
                     return;
                 }
             }
@@ -344,6 +388,7 @@ namespace PSO2ShopAid
             // else if we've reached the end without inserting, then it is earlier than all other dates (or the list is empty)
             // and we want to insert it at the end anyway
             RevivalDates.Add(newDate);
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
         public void RemoveRevivalDate(DateTime toRemove)
@@ -354,6 +399,7 @@ namespace PSO2ShopAid
             }
 
             RevivalDates.Remove(toRemove);
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
         public void RemoveRevivalDate(List<DateTime> toRemove)
@@ -367,6 +413,7 @@ namespace PSO2ShopAid
             {
                 RevivalDates.Remove(date);
             }
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
         public override string ToString()
@@ -403,12 +450,6 @@ namespace PSO2ShopAid
             {
                 investment.NotifyPropertyChanged(property.Name);
             }
-        }
-
-        public static void NotifyDatesChanged(this Item item)
-        {
-            item.NotifyPropertyChanged(nameof(item.ReleaseDate));
-            item.NotifyPropertyChanged(nameof(item.TimeSinceLastAvailable));
         }
     }
 }

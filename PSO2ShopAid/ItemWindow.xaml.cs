@@ -43,7 +43,6 @@ namespace PSO2ShopAid
         {
             DatePicker datePicker = (DatePicker)sender;
             item.ReleaseDate = (DateTime)datePicker.SelectedDate;
-            item.NotifyDatesChanged();
         }
 
         private void AddRevivalDate(object sender, SelectionChangedEventArgs e)
@@ -55,14 +54,12 @@ namespace PSO2ShopAid
 
             DatePicker datePicker = (DatePicker)sender;
             item.AddRevivalDate((DateTime)datePicker.SelectedDate);
-            item.NotifyDatesChanged();
         }
 
         private void DeleteRevivalDate(object sender, RoutedEventArgs e)
         {
             List<DateTime> toDelete = RevivalsListView.SelectedItems.Cast<DateTime>().ToList();
             item.RemoveRevivalDate(toDelete);
-            item.NotifyDatesChanged();
         }
 
 
