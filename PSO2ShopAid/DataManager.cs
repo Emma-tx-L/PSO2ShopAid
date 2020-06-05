@@ -33,7 +33,7 @@ namespace PSO2ShopAid
         {
             try
             {
-                ObservableCollection<Item> items = MainWindow.Shop.Items;
+                ObservableCollection<Item> items = MainWindow.Shop.AllItems;
                 string data = JsonConvert.SerializeObject(items);
                 File.WriteAllText(savePath, data);
             }
