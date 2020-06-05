@@ -193,7 +193,7 @@
                                     </Button>
                                 </StackPanel>
                             </materialDesign:PopupBox>
-                            <ComboBox ItemsSource="{Binding}" SelectedIndex="0" Name="Item_NewPriceSuffix"
+                            <ComboBox ItemsSource="{Binding}" SelectedIndex="1" Name="Item_NewPriceSuffix"
                                   Style="{DynamicResource MaterialDesignComboBox}" FontSize="25"
                                   VerticalAlignment="Bottom" DockPanel.Dock="Right"/>
                             <TextBox Name="Item_NewPrice" IsReadOnly="False"

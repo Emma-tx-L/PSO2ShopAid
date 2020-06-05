@@ -228,7 +228,7 @@
                                         FontSize="20" Margin="0 12 0 0" />
 
                             <DockPanel Grid.Row="1">
-                                <ComboBox ItemsSource="{Binding PriceSuffixes}" SelectedIndex="0" Name="NewItem_PriceSuffix"
+                                <ComboBox ItemsSource="{Binding PriceSuffixes}" SelectedIndex="1" Name="NewItem_PriceSuffix"
                                                 Style="{DynamicResource MaterialDesignComboBox}" FontSize="25"
                                                 DockPanel.Dock="Right" VerticalAlignment="Bottom"/>
                                 <TextBox Name="NewItem_Price" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" 
