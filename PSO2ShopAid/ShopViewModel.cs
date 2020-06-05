@@ -1,21 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 
 namespace PSO2ShopAid
 {
     public class ShopViewModel : BaseViewModel
     {
-        public ObservableCollection<Item> Items { get; set; }
-        public ObservableCollection<Item> Inventory { get; set; }
-        public ObservableCollection<PriceSuffix> PriceSuffixes { get; set; }
-
         public ShopViewModel()
         {
             Items = DataManager.LoadItems();
             RefreshInventory();
             PriceSuffixes = new ObservableCollection<PriceSuffix>((PriceSuffix[])Enum.GetValues(typeof(PriceSuffix)));
+            FilterItems(null);
+        }
+
+        private ObservableCollection<Item> _filteredItems;
+        private ObservableCollection<Item> _filteredInventory;
+        private string _searchKeyword;
+
+        public ObservableCollection<Item> Items { get; set; }
+        public ObservableCollection<Item> Inventory { get; set; }
+        public ObservableCollection<PriceSuffix> PriceSuffixes { get; set; }
+
+        public ObservableCollection<Item> FilteredItems
+        {
+            get => _filteredItems;
+            set
+            {
+                _filteredItems = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Item> FilteredInventory
+        {
+            get => _filteredInventory;
+            set
+            {
+                _filteredInventory = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public string SearchKeyword
+        {
+            get => _searchKeyword;
+            set
+            {
+                _searchKeyword = value;
+                NotifyPropertyChanged(nameof(FilteredItems));
+                NotifyPropertyChanged(nameof(FilteredInventory));
+                FilterItems(_searchKeyword);;
+            }
         }
 
         public void RefreshInventory()
@@ -116,6 +154,22 @@ namespace PSO2ShopAid
 
             NotifyPropertyChanged(nameof(Items));
             RefreshInventory();
+        }
+
+        private void FilterItems(string keyword)
+        {
+            IEnumerable<Item> filteredItems =
+                string.IsNullOrWhiteSpace(keyword) ?
+                Items :
+                Items.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
+
+            IEnumerable<Item> filteredInventory =
+                string.IsNullOrWhiteSpace(keyword) ?
+                Inventory :
+                Inventory.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
+
+            FilteredItems = new ObservableCollection<Item>(filteredItems);
+            FilteredInventory = new ObservableCollection<Item>(filteredInventory);
         }
     }
 }

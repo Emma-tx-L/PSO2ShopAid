@@ -43,11 +43,33 @@
 
     <Border Margin="10">
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="101*"/>
-                <ColumnDefinition Width="92*"/>
-            </Grid.ColumnDefinitions>
-            <Grid Margin="0,71,0,0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="71"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            
+            <DockPanel Grid.Row="1">
+                <!-- Search -->
+                <TextBox 
+                        x:Name="ItemSearchBox"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                        DockPanel.Dock="Top"
+                        Margin="16, 5"
+                        Background="Transparent"
+                        FontSize="15"
+                        Width="Auto"
+                        BorderThickness="0"
+                        materialDesign:HintAssist.Hint="Search"
+                        materialDesign:HintAssist.IsFloating="True"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                        materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
+                        materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
+
+                <!-- Items -->
+                <Grid Margin="0 5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -55,8 +77,14 @@
 
                 <!-- Tracked Items List -->
                 <DockPanel Grid.Column="0" Margin="0 0 5 0">
-                    <TextBox DockPanel.Dock="Top" Text="Tracked Items: " FontSize="20"  Background="Transparent" Foreground="{StaticResource LuciasBlue}"/>
-                    <ListBox ItemsSource="{Binding Items}" SelectionMode="Single" Name="TrackedItems">
+                    <TextBox DockPanel.Dock="Top" Text="Tracked Items: " FontSize="20" 
+                             Style="{StaticResource MaterialDesignTextBox}"
+                             Background="Transparent" Foreground="{StaticResource LuciasBlue}"
+                             IsReadOnly="True"
+                             BorderThickness="0"
+                             materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                             materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
+                    <ListBox ItemsSource="{Binding FilteredItems}" SelectionMode="Single" Name="TrackedItems">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Vertical"/>
@@ -105,8 +133,13 @@
 
                 <!-- Stocked Items List -->
                 <DockPanel Grid.Column="1" Margin="5 0 0 0">
-                    <TextBox DockPanel.Dock="Top" Text="In Inventory: " FontSize="20"  Background="Transparent" Foreground="{StaticResource LuciasBlue}"/>
-                    <ListBox ItemsSource="{Binding Inventory}" SelectionMode="Single" Name="Inventory">
+                        <TextBox DockPanel.Dock="Top" Text="In Inventory: " FontSize="20"  Style="{StaticResource MaterialDesignTextBox}"
+                             Background="Transparent" Foreground="{StaticResource LuciasBlue}"
+                             IsReadOnly="True"
+                             BorderThickness="0"
+                             materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                             materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
+                        <ListBox ItemsSource="{Binding FilteredInventory}" SelectionMode="Single" Name="Inventory">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Vertical"/>
@@ -153,8 +186,11 @@
                 </DockPanel>
                 <!-- /End Stocked Items List -->
             </Grid>
+            </DockPanel>
+            
 
-            <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <!-- Add Item Flipper Card -->
+            <materialDesign:Flipper Style="{StaticResource MaterialDesignCardFlipper}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                 <materialDesign:Flipper.FrontContent>
                     <Button Style="{StaticResource MaterialDesignRaisedButton}"
                         Command="{x:Static materialDesign:Flipper.FlipCommand}"
