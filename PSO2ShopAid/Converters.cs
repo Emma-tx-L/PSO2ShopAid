@@ -197,7 +197,7 @@ namespace PSO2ShopAid
         {
             if (value == null)
             {
-                return default;
+                return DateTime.Now;
             }
             DateTime date = (DateTime)value;
             return date.Equals(default) ? DateTime.Now : date;

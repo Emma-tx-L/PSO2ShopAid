@@ -442,6 +442,16 @@ namespace PSO2ShopAid
             this.NotifyChanged();
         }
 
+        public void RemoveInvestment(Investment toRemove)
+        {
+            Encounter linkedLog = toRemove.GetLink();
+            toRemove = null;
+            linkedLog.DidPurchase = false;
+            linkedLog.Purchase = null;
+            RefreshInvestmentsList();
+            this.NotifyChanged();
+        }
+
         public override string ToString()
         {
             try

@@ -48,7 +48,7 @@ namespace PSO2ShopAid
 
         private void AddRevivalDate(object sender, SelectionChangedEventArgs e)
         {
-            if (!isInitialized)
+            if (!isInitialized || item == null)
             {
                 return;
             }
@@ -59,7 +59,7 @@ namespace PSO2ShopAid
 
         private void ChangeEncounterDate(object sender, SelectionChangedEventArgs e)
         {
-            if (!isInitialized)
+            if (!isInitialized || item == null)
             {
                 return;
             }
@@ -67,8 +67,38 @@ namespace PSO2ShopAid
             DatePicker datePicker = sender as DatePicker;
             Encounter encounter = datePicker.DataContext as Encounter;
             encounter.ChangeDate((DateTime)datePicker.SelectedDate);
+        }
 
-            MessageBox.Show($"Updated Date to {datePicker.SelectedDate}");
+        private void ChangeInvestmentBuyDate(object sender, SelectionChangedEventArgs e)
+        {
+            if (!isInitialized || item == null)
+            {
+                return;
+            }
+
+            DatePicker datePicker = sender as DatePicker;
+            Investment investment = datePicker.DataContext as Investment;
+            Encounter encounter = investment.GetLink();
+            encounter.ChangeDate((DateTime)datePicker.SelectedDate);
+        }
+
+        private void ChangeInvestmentSellDate(object sender, SelectionChangedEventArgs e)
+        {
+            if (!isInitialized || item == null)
+            {
+                return;
+            }
+
+            DatePicker datePicker = sender as DatePicker;
+            Investment investment = datePicker.DataContext as Investment;
+
+            if (!investment.IsSold) {
+                MessageBox.Show("This investment has not been sold yet.");
+                return;
+            }
+
+            investment.SellDate = (DateTime)datePicker.SelectedDate;
+            item.NotifyChanged();
         }
 
         private void DeleteRevivalDate(object sender, RoutedEventArgs e)
@@ -105,6 +135,13 @@ namespace PSO2ShopAid
             item.RemoveEncounter(encounter);
         }
 
+        private void DeleteInvestment(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Investment investment = button.DataContext as Investment;
+            item.RemoveInvestment(investment);
+        }
+
         private void UpdateEncounterPrice(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -112,6 +149,33 @@ namespace PSO2ShopAid
             TextBox textBox = VisualTreeHelper.GetChild(button.Parent, 1) as TextBox;
             Price price = textBox.Text.ToPrice();
             encounter.ChangePrice(price);
+            item.NotifyChanged();
+        }
+
+        private void UpdateInvestmentPurchasePrice(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Investment investment = button.DataContext as Investment;
+            Encounter encounter = investment.GetLink();
+            TextBox textBox = VisualTreeHelper.GetChild(button.Parent, 1) as TextBox;
+            Price price = textBox.Text.ToPrice();
+            encounter.ChangePrice(price);
+            item.NotifyChanged();
+        }
+
+        private void UpdateInvestmentSellPrice(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Investment investment = button.DataContext as Investment;
+            if (!investment.IsSold)
+            {
+                MessageBox.Show("This investment has not been sold yet.");
+                return;
+            }
+
+            TextBox textBox = VisualTreeHelper.GetChild(button.Parent, 1) as TextBox;
+            Price price = textBox.Text.ToPrice();
+            investment.SellPrice = price;
             item.NotifyChanged();
         }
 

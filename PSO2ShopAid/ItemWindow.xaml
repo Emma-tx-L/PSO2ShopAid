@@ -14,7 +14,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="Ink Free"
-        Title="{Binding NameEN}" Height="700" Width="1200">
+        Title="{Binding NameEN}" Height="700" Width="1300">
 
     <Window.Resources>
         <!-- Converters -->
@@ -24,6 +24,7 @@
         <local:TimeSpanConverter x:Key="TimeSpanConverter" />
         <local:EncounterToColourConverter x:Key="EncounterToColourConverter" />
         <local:ShortDateConverter x:Key="ShortDateConverter" />
+        <local:DefaultDateToNowConverter x:Key="DefaultDateToNow" />
         <local:VeryShortDateConverter x:Key="VeryShortDateConverter" />
         <local:DefaultDateToNowConverter x:Key="DefaultDateToNowConverter" />
         <local:TimeAgoConverter x:Key="TimeAgoConverter" />
@@ -206,7 +207,7 @@
                     <DockPanel DockPanel.Dock="Top" Margin="0 0 0 10">
                         <DockPanel DockPanel.Dock="Top">
                             <TextBlock DockPanel.Dock="Left" Text="Released:" FontSize="14"/>
-                            <DatePicker Style="{StaticResource MaterialDesignFilledDatePicker}" DockPanel.Dock="Right" SelectedDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
+                            <DatePicker Style="{StaticResource MaterialDesignFilledDatePicker}" DockPanel.Dock="Right" DisplayDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
                                         SelectedDateChanged="UpdateReleaseDate" />
                             <TextBlock Text="{Binding ReleaseDate, Converter={StaticResource VeryShortDateConverter}}" FontSize="14"/>
                         </DockPanel>
@@ -215,7 +216,7 @@
                             <TextBlock DockPanel.Dock="Bottom" Text="{Binding TimeSinceLastAvailable, Converter={StaticResource TimeSinceConverter}}" FontSize="12"
                                        Foreground="{StaticResource LuciasSubtle}"/>
                             <TextBlock DockPanel.Dock="Left" Text="Revivals:" FontSize="14"/>
-                            <DatePicker DockPanel.Dock="Right" SelectedDate="{x:Static System:DateTime.Now}"
+                            <DatePicker DockPanel.Dock="Right" DisplayDate="{x:Static System:DateTime.Now}"
                                         SelectedDateChanged="AddRevivalDate"
                                         Style="{DynamicResource MaterialDesignFilledDatePicker}"/>
 
@@ -258,7 +259,7 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <DataGridTemplateColumn Width="0.6*">
+                                <DataGridTemplateColumn Width="50">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <materialDesign:PopupBox StaysOpen="True" Padding="0" Margin="0">
@@ -289,7 +290,7 @@
 
 
                                                     <DockPanel Grid.Row="2">
-                                                        <DatePicker DockPanel.Dock="Right" SelectedDate="{x:Static System:DateTime.Now}"
+                                                        <DatePicker DockPanel.Dock="Right" DisplayDate="{Binding date, Converter={StaticResource DefaultDateToNow}}"
                                                                     SelectedDateChanged="ChangeEncounterDate"
                                                                     Style="{StaticResource MaterialDesignFilledDatePicker}"/>
                                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
@@ -371,12 +372,15 @@
 
                             <DockPanel>
                                 <TextBlock DockPanel.Dock="Top" Text="Approx. Current Profit:" FontSize="18"/>
-                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Left" 
+                                <TextBlock Text="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceConverter}}" DockPanel.Dock="Top" 
                                            FontSize="24" FontWeight="Bold" Margin="0 0 40 0" Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
-                                <TextBlock Text="{Binding ApproximateCurrentProfitPercent}" DockPanel.Dock="Left" 
+                                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding ApproximateCurrentProfitPercent}" DockPanel.Dock="Left" 
                                            FontSize="24" FontWeight="Bold" Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
-                                <TextBlock Text="%" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"
+                                    <TextBlock Text="%" DockPanel.Dock="Left" FontSize="24" FontWeight="Bold" Margin="0 0 10 0"
                                            Foreground="{Binding ApproximateCurrentProfit, Converter={StaticResource PriceToColourConverter}}"/>
+                                </StackPanel>
+                                
                             </DockPanel>
 
                         </DockPanel>
@@ -414,11 +418,11 @@
                             <TextBlock DockPanel.Dock="Top" Text="Investments" FontSize="18"/>
                             <DataGrid ItemsSource="{Binding Investments}" Name="ItemInvestmentsGrid">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="*" Header="Price">
+                                    <DataGridTemplateColumn Width="1.2*" Header="Price">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                     <TextBlock Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" TextWrapping="Wrap" 
-                                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource LightGreen}" Padding="5" FontSize="18"/>
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource LightGreen}" Padding="5" FontSize="16"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -454,6 +458,81 @@
                                             <DataTemplate>
                                                     <TextBlock Text="{Binding Profit, Converter={StaticResource PriceConverter}}" HorizontalAlignment="Center" 
                                                                VerticalAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="{Binding Profit, Converter={StaticResource PriceToColourConverter}}" Padding="3"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn Width="50">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <materialDesign:PopupBox StaysOpen="True" Padding="0" Margin="0">
+                                                    <Grid Width="200" Margin="8,8,8,8" DockPanel.Dock="Top">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="*" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <TextBlock
+                                                        Grid.Row="0"
+                                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                                        Margin="8,8,8,16" FontSize="18" FontWeight="Bold" Text="EDIT"/>
+
+                                                        <DockPanel Grid.Row="1">
+                                                            <Button DockPanel.Dock="Right" Content="Update" 
+                                                                Height="30"
+                                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                                materialDesign:ButtonAssist.CornerRadius="10"
+                                                                DataContext="{Binding}"
+                                                                Click="UpdateInvestmentPurchasePrice"/>
+                                                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                                materialDesign:HintAssist.Hint="Purchase Price"
+                                                                Text="{Binding PurchasePrice, Converter={StaticResource PriceConverter}}" />
+                                                        </DockPanel>
+
+
+                                                        <DockPanel Grid.Row="2">
+                                                            <DatePicker DockPanel.Dock="Right" DisplayDate="{Binding PurchaseDate, Converter={StaticResource DefaultDateToNow}}"
+                                                                    SelectedDateChanged="ChangeInvestmentBuyDate"
+                                                                    Style="{StaticResource MaterialDesignFilledDatePicker}"/>
+                                                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                                    materialDesign:HintAssist.Hint="Purchase Date"
+                                                                    Text="{Binding PurchaseDate, Converter={StaticResource VeryShortDateConverter}}" />
+                                                        </DockPanel>
+
+                                                        <DockPanel Grid.Row="3">
+                                                            <Button DockPanel.Dock="Right" Content="Update" 
+                                                                Height="30"
+                                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                                materialDesign:ButtonAssist.CornerRadius="10"
+                                                                DataContext="{Binding}"
+                                                                Click="UpdateInvestmentSellPrice"/>
+                                                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                                materialDesign:HintAssist.Hint="Sell Price"
+                                                                Text="{Binding SellPrice, Converter={StaticResource PriceConverter}}" />
+                                                        </DockPanel>
+
+                                                        <DockPanel Grid.Row="4">
+                                                            <DatePicker DockPanel.Dock="Right" DisplayDate="{Binding SellDate, Converter={StaticResource DefaultDateToNow}}"
+                                                                    SelectedDateChanged="ChangeInvestmentSellDate"
+                                                                    Style="{StaticResource MaterialDesignFilledDatePicker}"/>
+                                                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                                    materialDesign:HintAssist.Hint="Sell Date"
+                                                                    Text="{Binding SellDate, Converter={StaticResource VeryShortDateConverter}}" />
+                                                        </DockPanel>
+
+                                                        <Button Grid.Row="5" Content="Delete" 
+                                                                Height="30" Width="120" Margin="0 20 0 10"
+                                                                Background="{StaticResource MessiahPink}"
+                                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                                DataContext="{Binding}"
+                                                                materialDesign:ButtonAssist.CornerRadius="10"
+                                                                Click="DeleteInvestment"/>
+                                                    </Grid>
+                                                </materialDesign:PopupBox>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>

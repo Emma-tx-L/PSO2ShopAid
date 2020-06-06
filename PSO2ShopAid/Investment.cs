@@ -9,14 +9,14 @@ namespace PSO2ShopAid
         {
             PurchaseDate = date;
             PurchasePrice = price;
-            linkedLog = link;
+            LinkedLog = link;
         }
 
         public Investment(Price price, Encounter link)
         {
             PurchaseDate = DateTime.Now;
             PurchasePrice = price;
-            linkedLog = link;
+            LinkedLog = link;
         }
 
         [JsonConstructor]
@@ -26,14 +26,14 @@ namespace PSO2ShopAid
             PurchasePrice = purchasePrice;
             SellDate = sellDate;
             SellPrice = sellPrice;
-            linkedLog = link;
+            LinkedLog = link;
         }
 
         private DateTime _purchaseDate;
         private Price _purchasePrice;
         private DateTime _sellDate;
         private Price _sellPrice;
-        private Encounter linkedLog;
+        private Encounter LinkedLog;
 
         public DateTime PurchaseDate
         {
@@ -138,6 +138,11 @@ namespace PSO2ShopAid
             }
 
             return SellDate.Subtract(PurchaseDate);
+        }
+
+        public Encounter GetLink()
+        {
+            return LinkedLog;
         }
 
         public int CompareTo(Investment other)
