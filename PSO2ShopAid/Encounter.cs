@@ -5,34 +5,35 @@ namespace PSO2ShopAid
 {
     public class Encounter : BaseViewModel, IComparable<Encounter>
     {
-        public Encounter(Price currPrice, DateTime currDate, bool sold = false, Investment purchase = null)
+        [JsonConstructor]
+        public Encounter(Price currPrice, DateTime currDate, bool isPurchase = false, bool sold = false)
         {
             price = currPrice;
             date = currDate;
             IsSell = sold;
-            Purchase = purchase;
+            DidPurchase = isPurchase;
+            if (isPurchase)
+            {
+                Purchase = new Investment(currPrice, currDate, this);
+            }
         }
 
-        public Encounter(Price currPrice, bool sold = false, Investment purchase = null)
+        public Encounter(Price currPrice, bool sold = false, bool isPurchase = false)
         {
             price = currPrice;
             date = DateTime.Now;
             IsSell = sold;
-            Purchase = purchase;
-        }
-
-        [JsonConstructor]
-        public Encounter(Price p, DateTime d, Investment purchase, bool didPurchase, bool sold)
-        {
-            price = p;
-            date = d;
-            Purchase = purchase;
-            IsSell = sold;
+            DidPurchase = isPurchase;
+            if (isPurchase)
+            {
+                Purchase = new Investment(currPrice, this);
+            }
         }
 
         private Price _price;
         private DateTime _date;
         private Investment _purchase;
+        private bool _didPurchase;
 
         public Price price
         {
@@ -63,7 +64,36 @@ namespace PSO2ShopAid
                 NotifyPropertyChanged(nameof(DidPurchase));
             }
         }
-        public bool DidPurchase { get { return Purchase != null; } }
+
+        public bool DidPurchase
+        {
+            get => _didPurchase;
+            set
+            {
+                _didPurchase = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public void ChangePrice(Price newPrice)
+        {
+            price = newPrice;
+
+            if (DidPurchase)
+            {
+                Purchase.PurchasePrice = newPrice;
+            }
+        }
+
+        public void ChangeDate(DateTime newDate)
+        {
+            date = newDate;
+
+            if (DidPurchase)
+            {
+                Purchase.PurchaseDate = newDate;
+            }
+        }
 
         public int CompareTo(Encounter other)
         {

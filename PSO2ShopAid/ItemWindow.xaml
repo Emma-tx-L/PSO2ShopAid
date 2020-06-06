@@ -206,7 +206,7 @@
                     <DockPanel DockPanel.Dock="Top" Margin="0 0 0 10">
                         <DockPanel DockPanel.Dock="Top">
                             <TextBlock DockPanel.Dock="Left" Text="Released:" FontSize="14"/>
-                            <DatePicker Style="{DynamicResource MaterialDesignFilledDatePicker}" DockPanel.Dock="Right" SelectedDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
+                            <DatePicker Style="{StaticResource MaterialDesignFilledDatePicker}" DockPanel.Dock="Right" SelectedDate="{Binding ReleaseDate, Mode=TwoWay, Converter={StaticResource DefaultDateToNowConverter}}"
                                         SelectedDateChanged="UpdateReleaseDate" />
                             <TextBlock Text="{Binding ReleaseDate, Converter={StaticResource VeryShortDateConverter}}" FontSize="14"/>
                         </DockPanel>
@@ -291,7 +291,7 @@
                                                     <DockPanel Grid.Row="2">
                                                         <DatePicker DockPanel.Dock="Right" SelectedDate="{x:Static System:DateTime.Now}"
                                                                     SelectedDateChanged="ChangeEncounterDate"
-                                                                    Style="{DynamicResource MaterialDesignFilledDatePicker}"/>
+                                                                    Style="{StaticResource MaterialDesignFilledDatePicker}"/>
                                                         <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                                                     materialDesign:HintAssist.Hint="Date"
                                                                     Text="{Binding date, Converter={StaticResource ShortDateConverter}}" />

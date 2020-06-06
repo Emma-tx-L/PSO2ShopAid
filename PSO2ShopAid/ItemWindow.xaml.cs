@@ -65,8 +65,10 @@ namespace PSO2ShopAid
             }
 
             DatePicker datePicker = sender as DatePicker;
+            Encounter encounter = datePicker.DataContext as Encounter;
+            encounter.ChangeDate((DateTime)datePicker.SelectedDate);
 
-            MessageBox.Show($"Selected Date is {datePicker.SelectedDate}");
+            MessageBox.Show($"Updated Date to {datePicker.SelectedDate}");
         }
 
         private void DeleteRevivalDate(object sender, RoutedEventArgs e)
@@ -109,8 +111,8 @@ namespace PSO2ShopAid
             Encounter encounter = button.DataContext as Encounter;
             TextBox textBox = VisualTreeHelper.GetChild(button.Parent, 1) as TextBox;
             Price price = textBox.Text.ToPrice();
-            encounter.price = price;
-            MessageBox.Show($"Updated {encounter.price.RawPrice} to {price.RawPrice}");
+            encounter.ChangePrice(price);
+            item.NotifyChanged();
         }
 
         private async void LogEncounter(object sender, RoutedEventArgs e)

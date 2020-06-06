@@ -15,41 +15,44 @@ namespace PSO2ShopAid
         {
             NameEN = nameEN;
             RevivalDates = new ObservableCollection<DateTime>();
-            Investments = new ObservableCollection<Investment>();
             Encounters = new ObservableCollection<Encounter>();
             Colour = ColourPicker.GetRandomColour();
+            RefreshInvestmentsList();
         }
 
         public Item(string nameEN, string colour)
         {
             NameEN = nameEN;
             RevivalDates = new ObservableCollection<DateTime>();
-            Investments = new ObservableCollection<Investment>();
             Encounters = new ObservableCollection<Encounter>();
             Colour = colour;
             ColourPicker.AddColour(colour);
+            RefreshInvestmentsList();
         }
 
         [JsonConstructor]
-        public Item(string nameEN, string nameJP, DateTime release, ObservableCollection<DateTime> rev, List<Investment> investments, List<Encounter> encounters, string col)
+        public Item(string nameEN, string nameJP, DateTime release, ObservableCollection<DateTime> rev, List<Encounter> encounters, string col)
         {
-            investments.Sort();
             encounters.Sort();
 
             NameEN = nameEN;
             NameJP = nameJP;
             ReleaseDate = release;
             RevivalDates = rev;
-            Investments = new ObservableCollection<Investment>(investments);
-            Encounters = new ObservableCollection<Encounter>(encounters);
+            Encounters = new ObservableCollection<Encounter>();
+            foreach (Encounter encounter in encounters)
+            {
+                Encounter newEncounter = new Encounter(encounter.price, encounter.date, encounter.DidPurchase);
+                Encounters.Add(newEncounter);
+            }
             Colour = col;
+            RefreshInvestmentsList();
         }
 
         private string _nameEN;
         private string _nameJP;
         private DateTime _releaseDate;
         private ObservableCollection<DateTime> _revivalDates;
-        private ObservableCollection<Investment> _investments;
         private ObservableCollection<Encounter> _encounters;
 
         public ObservableCollection<PriceSuffix> PriceSuffixes
@@ -80,12 +83,7 @@ namespace PSO2ShopAid
         }
         public ObservableCollection<Investment> Investments
         {
-            get => _investments;
-            set
-            {
-                _investments = value;
-                this.NotifyChanged();
-            }
+            get => RefreshInvestmentsList();
         }
         public ObservableCollection<Encounter> Encounters
         {
@@ -94,6 +92,7 @@ namespace PSO2ShopAid
             {
                 _encounters = value;
                 this.NotifyChanged();
+                RefreshInvestmentsList();
             }
         }
         public string Colour { get; set; }
@@ -301,6 +300,21 @@ namespace PSO2ShopAid
                 }
             }
         }
+
+        public ObservableCollection<Investment> RefreshInvestmentsList()
+        {
+            ObservableCollection<Investment> investments = new ObservableCollection<Investment>();
+
+            foreach (Encounter log in Encounters)
+            {
+                if (log.DidPurchase)
+                {
+                    investments.Add(log.Purchase);
+                }
+            }
+
+            return investments;
+        }
             
 
         public List<Price> GetAllPriceRecords()
@@ -330,11 +344,10 @@ namespace PSO2ShopAid
 
         public void Purchase(Price price, DateTime time = default)
         {
-            Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
-            Encounter newEncounter = time == default ? new Encounter(price, purchase: newInvestment) : new Encounter(price, time, purchase: newInvestment);
+            Encounter newEncounter = time == default ? new Encounter(price, isPurchase: true) : new Encounter(price, time, isPurchase: true);
 
-            Investments.Insert(0, newInvestment);
             Encounters.Insert(0, newEncounter);
+            Investments.Insert(0, newEncounter.Purchase);
             this.NotifyChanged();
         }
 
@@ -422,6 +435,13 @@ namespace PSO2ShopAid
             NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
+        public void ChangeEncounterPrice(Encounter encounter, Price price)
+        {
+            encounter.ChangePrice(price);
+            RefreshInvestmentsList();
+            this.NotifyChanged();
+        }
+
         public override string ToString()
         {
             try
@@ -435,6 +455,7 @@ namespace PSO2ShopAid
 
     public static class HelperOp
     {
+        private static readonly Regex whiteSpace = new Regex(@"\s+");
         public static bool IsSame(this Item i1, Item i2)
         {
             return i1.NameEN == i2.NameEN;
@@ -462,7 +483,8 @@ namespace PSO2ShopAid
         {
             try
             {
-                Regex.Replace(input, @"\s+", "");
+                whiteSpace.Replace(input, input);
+                input = input.ToLower();
                 bool isShortForm = false;
                 PriceSuffix suffix = PriceSuffix.m;
 
