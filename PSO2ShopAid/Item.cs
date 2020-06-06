@@ -2,54 +2,100 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace PSO2ShopAid
 {
     public class Item : BaseViewModel
     {
-        public string NameEN { get; set; }
-        public string NameJP { get; set; }
-        public DateTime ReleaseDate { get; set; }
-        public ObservableCollection<DateTime> RevivalDates { get; set; }
-        public ObservableCollection<Investment> Investments { get; set; }
-        public ObservableCollection<Encounter> Encounters { get; set; }
-        public string Colour { get; set; }
-
         public Item(string nameEN)
         {
             NameEN = nameEN;
             RevivalDates = new ObservableCollection<DateTime>();
-            Investments = new ObservableCollection<Investment>();
             Encounters = new ObservableCollection<Encounter>();
             Colour = ColourPicker.GetRandomColour();
+            RefreshInvestmentsList();
         }
 
         public Item(string nameEN, string colour)
         {
             NameEN = nameEN;
             RevivalDates = new ObservableCollection<DateTime>();
-            Investments = new ObservableCollection<Investment>();
             Encounters = new ObservableCollection<Encounter>();
             Colour = colour;
             ColourPicker.AddColour(colour);
+            RefreshInvestmentsList();
         }
 
         [JsonConstructor]
-        public Item(string nameEN, string nameJP, DateTime release, ObservableCollection<DateTime> rev, List<Investment> investments, List<Encounter> encounters, string col)
+        public Item(string nameEN, string nameJP, DateTime release, ObservableCollection<DateTime> rev, List<Encounter> encounters, string col)
         {
-            investments.Sort();
             encounters.Sort();
 
             NameEN = nameEN;
             NameJP = nameJP;
             ReleaseDate = release;
             RevivalDates = rev;
-            Investments = new ObservableCollection<Investment>(investments);
-            Encounters = new ObservableCollection<Encounter>(encounters);
+            Encounters = new ObservableCollection<Encounter>();
+            foreach (Encounter encounter in encounters)
+            {
+                Encounter newEncounter = new Encounter(encounter.price, encounter.date, encounter.DidPurchase);
+                Encounters.Add(newEncounter);
+            }
             Colour = col;
+            RefreshInvestmentsList();
         }
+
+        private string _nameEN;
+        private string _nameJP;
+        private DateTime _releaseDate;
+        private ObservableCollection<DateTime> _revivalDates;
+        private ObservableCollection<Encounter> _encounters;
+
+        public ObservableCollection<PriceSuffix> PriceSuffixes
+        {
+            get => new ObservableCollection<PriceSuffix>((PriceSuffix[])Enum.GetValues(typeof(PriceSuffix)));
+        }
+        public string NameEN { get => _nameEN; set { _nameEN = value; NotifyPropertyChanged(); } }
+        public string NameJP { get => _nameJP; set { _nameJP = value; NotifyPropertyChanged(); } }
+        public DateTime ReleaseDate
+        {
+            get => _releaseDate;
+            set
+            {
+                _releaseDate = value != null? value : DateTime.Now;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
+            }
+        }
+        public ObservableCollection<DateTime> RevivalDates
+        {
+            get => _revivalDates;
+            set
+            {
+                _revivalDates = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
+            }
+        }
+        public ObservableCollection<Investment> Investments
+        {
+            get => RefreshInvestmentsList();
+        }
+        public ObservableCollection<Encounter> Encounters
+        {
+            get => _encounters;
+            set
+            {
+                _encounters = value;
+                this.NotifyChanged();
+                RefreshInvestmentsList();
+            }
+        }
+        public string Colour { get; set; }
 
         public int Stock
         {
@@ -231,6 +277,8 @@ namespace PSO2ShopAid
         {
             get
             {
+                // this will always calculate from the revival dates if present
+                // as the release date should NEVER be more recent than revivals
                 if (RevivalDates.Count > 0)
                 {
                     DateTime recent = default;
@@ -251,6 +299,21 @@ namespace PSO2ShopAid
                     return new TimeSpan(0);
                 }
             }
+        }
+
+        public ObservableCollection<Investment> RefreshInvestmentsList()
+        {
+            ObservableCollection<Investment> investments = new ObservableCollection<Investment>();
+
+            foreach (Encounter log in Encounters)
+            {
+                if (log.DidPurchase)
+                {
+                    investments.Add(log.Purchase);
+                }
+            }
+
+            return investments;
         }
             
 
@@ -281,11 +344,10 @@ namespace PSO2ShopAid
 
         public void Purchase(Price price, DateTime time = default)
         {
-            Investment newInvestment = time == default ? new Investment(price) : new Investment(price, time);
-            Encounter newEncounter = time == default ? new Encounter(price, purchase: newInvestment) : new Encounter(price, time, purchase: newInvestment);
+            Encounter newEncounter = time == default ? new Encounter(price, isPurchase: true) : new Encounter(price, time, isPurchase: true);
 
-            Investments.Insert(0, newInvestment);
             Encounters.Insert(0, newEncounter);
+            Investments.Insert(0, newEncounter.Purchase);
             this.NotifyChanged();
         }
 
@@ -337,6 +399,7 @@ namespace PSO2ShopAid
                 if (RevivalDates[i].Date < newDate.Date) // traverse until we find a date smaller than the current date
                 {
                     RevivalDates.Insert(i, newDate); //insert the current date here
+                    NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
                     return;
                 }
             }
@@ -344,6 +407,7 @@ namespace PSO2ShopAid
             // else if we've reached the end without inserting, then it is earlier than all other dates (or the list is empty)
             // and we want to insert it at the end anyway
             RevivalDates.Add(newDate);
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
         public void RemoveRevivalDate(DateTime toRemove)
@@ -354,6 +418,7 @@ namespace PSO2ShopAid
             }
 
             RevivalDates.Remove(toRemove);
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
         public void RemoveRevivalDate(List<DateTime> toRemove)
@@ -367,6 +432,24 @@ namespace PSO2ShopAid
             {
                 RevivalDates.Remove(date);
             }
+            NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
+        }
+
+        public void RemoveEncounter(Encounter toRemove)
+        {
+            Encounters = new ObservableCollection<Encounter>(Encounters.Except(new List<Encounter>() { toRemove }));
+            RefreshInvestmentsList();
+            this.NotifyChanged();
+        }
+
+        public void RemoveInvestment(Investment toRemove)
+        {
+            Encounter linkedLog = toRemove.GetLink();
+            toRemove = null;
+            linkedLog.DidPurchase = false;
+            linkedLog.Purchase = null;
+            RefreshInvestmentsList();
+            this.NotifyChanged();
         }
 
         public override string ToString()
@@ -376,12 +459,12 @@ namespace PSO2ShopAid
                 return JsonConvert.SerializeObject(this);
             }
             catch { return base.ToString(); }
-
         }
     }
 
     public static class HelperOp
     {
+        private static readonly Regex whiteSpace = new Regex(@"\s+");
         public static bool IsSame(this Item i1, Item i2)
         {
             return i1.NameEN == i2.NameEN;
@@ -405,10 +488,56 @@ namespace PSO2ShopAid
             }
         }
 
-        public static void NotifyDatesChanged(this Item item)
+        public static Price ToPrice(this string input)
         {
-            item.NotifyPropertyChanged(nameof(item.ReleaseDate));
-            item.NotifyPropertyChanged(nameof(item.TimeSinceLastAvailable));
+            try
+            {
+                whiteSpace.Replace(input, input);
+                input = input.ToLower();
+                PriceSuffix suffix = PriceSuffix.k;
+
+                if (input.EndsWith("k"))
+                {
+                    suffix = PriceSuffix.k;
+                    input.Replace("k", "");
+                }
+                else if (input.EndsWith("m"))
+                {
+                    suffix = PriceSuffix.m;
+                    input.Replace("m", "");
+                }
+
+                input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
+                float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+
+                return new Price(priceValue, suffix);
+            }
+            catch
+            {
+                return new Price(0);
+            }
+        }
+
+        public static Price ToPrice(this string input, PriceSuffix suffix)
+        {
+            whiteSpace.Replace(input, input);
+            input = input.ToLower();
+
+            if (input.EndsWith("k"))
+            {
+                suffix = PriceSuffix.k;
+                input.Replace("k", "");
+            }
+            else if (input.EndsWith("m"))
+            {
+                suffix = PriceSuffix.m;
+                input.Replace("m", "");
+            }
+
+            input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
+            float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+
+            return new Price(priceValue, suffix);
         }
     }
 }

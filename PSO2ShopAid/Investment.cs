@@ -5,10 +5,79 @@ namespace PSO2ShopAid
 {
     public class Investment : BaseViewModel, IComparable<Investment>
     {
-        public DateTime PurchaseDate { get; set; }
-        public Price PurchasePrice { get; set; }
-        public DateTime SellDate { get; set; }
-        public Price SellPrice { get; set; }
+        public Investment(Price price, DateTime date, Encounter link)
+        {
+            PurchaseDate = date;
+            PurchasePrice = price;
+            LinkedLog = link;
+        }
+
+        public Investment(Price price, Encounter link)
+        {
+            PurchaseDate = DateTime.Now;
+            PurchasePrice = price;
+            LinkedLog = link;
+        }
+
+        [JsonConstructor]
+        public Investment(DateTime purchaseDate, Price purchasePrice, DateTime sellDate, Encounter link, Price sellPrice, bool isSold)
+        {
+            PurchaseDate = purchaseDate;
+            PurchasePrice = purchasePrice;
+            SellDate = sellDate;
+            SellPrice = sellPrice;
+            LinkedLog = link;
+        }
+
+        private DateTime _purchaseDate;
+        private Price _purchasePrice;
+        private DateTime _sellDate;
+        private Price _sellPrice;
+        private Encounter LinkedLog;
+
+        public DateTime PurchaseDate
+        {
+            get => _purchaseDate;
+            set
+            {
+                _purchaseDate = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(DaysToFlip));
+            }
+        }
+        public Price PurchasePrice
+        {
+            get => _purchasePrice;
+            set
+            {
+                _purchasePrice = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(Profit));
+            }
+        }
+        public DateTime SellDate
+        {
+            get => _sellDate;
+            set
+            {
+                _sellDate = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(IsSold));
+                NotifyPropertyChanged(nameof(DaysToFlip));
+            }
+        }
+        public Price SellPrice
+        {
+            get => _sellPrice;
+            set
+            {
+                _sellPrice = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(IsSold));
+                NotifyPropertyChanged(nameof(Profit));
+            }
+        }
+
         public bool IsSold { get { return SellPrice != null && SellDate != null; } }
         public TimeSpan DaysToFlip
         {
@@ -25,27 +94,6 @@ namespace PSO2ShopAid
             {
                 return IsSold ? SellPrice.Subtract(PurchasePrice) : new Price(0);
             }
-        }
-
-        public Investment(Price price, DateTime date)
-        {
-            PurchaseDate = date;
-            PurchasePrice = price;
-        }
-
-        public Investment(Price price)
-        {
-            PurchaseDate = DateTime.Now;
-            PurchasePrice = price;
-        }
-
-        [JsonConstructor]
-        public Investment(DateTime purchaseDate, Price purchasePrice, DateTime sellDate, Price sellPrice, bool isSold)
-        {
-            PurchaseDate = purchaseDate;
-            PurchasePrice = purchasePrice;
-            SellDate = sellDate;
-            SellPrice = sellPrice;
         }
 
         public void Sell(Price price, DateTime date)
@@ -90,6 +138,11 @@ namespace PSO2ShopAid
             }
 
             return SellDate.Subtract(PurchaseDate);
+        }
+
+        public Encounter GetLink()
+        {
+            return LinkedLog;
         }
 
         public int CompareTo(Investment other)

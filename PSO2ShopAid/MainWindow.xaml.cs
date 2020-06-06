@@ -58,13 +58,12 @@ namespace PSO2ShopAid
             {
                 try
                 {
-                    Price price = new Price(float.Parse(priceString), suffix);
+                    Price price = priceString.ToPrice(suffix);
                     Shop.AddNewItem(name, price, isPurchase, hex);
                 }
-                catch (Exception err)
+                catch (Exception)
                 {
                     MessageBox.Show("Please enter a valid price.");
-                    Console.WriteLine(err);
                 }
             }
 
@@ -87,12 +86,18 @@ namespace PSO2ShopAid
             {
                 Item item = (Item)TrackedItems.SelectedItem;
 
+                if (item == null)
+                {
+                    return;
+                }
+
                 if (OpenItemWindows.Contains(item.NameEN))
                 {
                     return;
                 }
 
                 ItemWindow itemWindow = new ItemWindow(item, this);
+                itemWindow.Owner = Application.Current.MainWindow;
                 OpenItemWindows.Add(item.NameEN);
                 itemWindow.Show();
             }

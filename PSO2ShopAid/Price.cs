@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PSO2ShopAid
 {
@@ -38,6 +34,18 @@ namespace PSO2ShopAid
         private float GetRawPrice(float num, PriceSuffix suffix)
         {
             return suffix.Equals(PriceSuffix.k) ? num * 1000 : num * 1000000;
+        }
+
+        public override string ToString()
+        {
+            if (RawPrice < 1000000)
+            {
+                return $"{Math.Round(priceK, 3)}k";
+            }
+            else
+            {
+                return $"{Math.Round(priceM, 3)}m";
+            }
         }
     }
 

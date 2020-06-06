@@ -10,7 +10,7 @@ namespace PSO2ShopAid
     {
         public ShopViewModel()
         {
-            Items = DataManager.LoadItems();
+            AllItems = DataManager.LoadItems();
             RefreshInventory();
             PriceSuffixes = new ObservableCollection<PriceSuffix>((PriceSuffix[])Enum.GetValues(typeof(PriceSuffix)));
             FilterItems(null);
@@ -18,10 +18,36 @@ namespace PSO2ShopAid
 
         private ObservableCollection<Item> _filteredItems;
         private ObservableCollection<Item> _filteredInventory;
+        private ObservableCollection<Item> _allItems;
+        private ObservableCollection<Item> _allInventory;
         private string _searchKeyword;
 
-        public ObservableCollection<Item> Items { get; set; }
-        public ObservableCollection<Item> Inventory { get; set; }
+        public ObservableCollection<Item> AllItems
+        {
+            get => _allItems;
+            set
+            {
+                _allItems = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(AllInventory));
+                NotifyPropertyChanged(nameof(FilteredItems));
+                NotifyPropertyChanged(nameof(FilteredInventory));
+                RefreshInventory();
+                FilterItems(_searchKeyword);
+            }
+        }
+
+        public ObservableCollection<Item> AllInventory
+        {
+            get => _allInventory;
+            set
+            {
+                _allInventory = value;
+                NotifyPropertyChanged();
+                FilterItems(_searchKeyword);
+            }
+        }
+
         public ObservableCollection<PriceSuffix> PriceSuffixes { get; set; }
 
         public ObservableCollection<Item> FilteredItems
@@ -52,23 +78,23 @@ namespace PSO2ShopAid
                 _searchKeyword = value;
                 NotifyPropertyChanged(nameof(FilteredItems));
                 NotifyPropertyChanged(nameof(FilteredInventory));
-                FilterItems(_searchKeyword);;
+                FilterItems(_searchKeyword);
             }
         }
 
         public void RefreshInventory()
         {
-            Inventory = new ObservableCollection<Item>();
+            ObservableCollection<Item> inventory = new ObservableCollection<Item>();
 
-            foreach (Item item in Items)
+            foreach (Item item in AllItems)
             {
                 if (item.Stock > 0)
                 {
-                    Inventory.Add(item);
+                    inventory.Add(item);
                 }
             }
 
-            NotifyPropertyChanged(nameof(Inventory));
+            AllInventory = inventory;
         }
 
         public void AddNewItem(string nameEN, string colour = null)
@@ -77,7 +103,7 @@ namespace PSO2ShopAid
             if (colour == null) { newItem = new Item(nameEN); }
             else { newItem = new Item(nameEN, colour); }
 
-            foreach (Item item in Items)
+            foreach (Item item in AllItems)
             {
                 if (item.IsSame(newItem))
                 {
@@ -85,7 +111,7 @@ namespace PSO2ShopAid
                 }
             }
 
-            Items.Add(newItem);
+            AllItems.Add(newItem);
 
             Console.WriteLine($"Added new item");
         }
@@ -96,7 +122,7 @@ namespace PSO2ShopAid
             if (colour == null) { newItem = new Item(nameEN); }
             else { newItem = new Item(nameEN, colour); }
 
-            foreach (Item item in Items)
+            foreach (Item item in AllItems)
             {
                 if (item.IsSame(newItem))
                 {
@@ -112,7 +138,7 @@ namespace PSO2ShopAid
                     }
 
                     item.NotifyChanged();
-                    NotifyPropertyChanged(nameof(Items));
+                    NotifyPropertyChanged(nameof(AllItems));
                     return;
                 }
             }
@@ -127,13 +153,13 @@ namespace PSO2ShopAid
                 newItem.Log(price);
             }
 
-            Items.Add(newItem);
+            AllItems.Add(newItem);
         }
 
         public void RemoveItem(Item toRemove)
         {
             List<Item> removeList = new List<Item>();
-            foreach (Item item in Items)
+            foreach (Item item in AllItems)
             {
                 if (item.IsSame(toRemove))
                 {
@@ -141,18 +167,18 @@ namespace PSO2ShopAid
                 }
             }
 
-            Items = new ObservableCollection<Item>(Items.Except(removeList));
-            NotifyPropertyChanged(nameof(Items));
+            AllItems = new ObservableCollection<Item>(AllItems.Except(removeList));
+            NotifyPropertyChanged(nameof(AllItems));
         }
 
         public void CompleteRefresh()
         {
-            foreach (Item item in Items)
+            foreach (Item item in AllItems)
             {
                 item.NotifyChanged();
             }
 
-            NotifyPropertyChanged(nameof(Items));
+            NotifyPropertyChanged(nameof(AllItems));
             RefreshInventory();
         }
 
@@ -160,13 +186,13 @@ namespace PSO2ShopAid
         {
             IEnumerable<Item> filteredItems =
                 string.IsNullOrWhiteSpace(keyword) ?
-                Items :
-                Items.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
+                AllItems :
+                AllItems.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
 
             IEnumerable<Item> filteredInventory =
                 string.IsNullOrWhiteSpace(keyword) ?
-                Inventory :
-                Inventory.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
+                AllInventory :
+                AllInventory.Where(i => i.NameEN.ToLower().Contains(keyword.ToLower()));
 
             FilteredItems = new ObservableCollection<Item>(filteredItems);
             FilteredInventory = new ObservableCollection<Item>(filteredInventory);

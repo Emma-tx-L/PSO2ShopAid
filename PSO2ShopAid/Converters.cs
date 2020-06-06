@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
@@ -17,16 +18,9 @@ namespace PSO2ShopAid
             {
                 return "-";
             }
-            Price price = (Price)value;
 
-            if (price.RawPrice < 1000000)
-            {
-                return $"{Math.Round(price.priceK, 3)}k";
-            }
-            else
-            {
-                return $"{Math.Round(price.priceM, 3)}m";
-            }
+            Price price = (Price)value;
+            return price.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -36,16 +30,8 @@ namespace PSO2ShopAid
                 return null;
             }
 
-            try
-            {
-                string priceString = value as string;
-                float price = float.Parse(priceString);
-                return new Price(price);
-            }
-            catch
-            {
-                return new Price(0);
-            }
+            string priceString = value as string;
+            return priceString.ToPrice();
         }
     }
 
@@ -211,7 +197,7 @@ namespace PSO2ShopAid
         {
             if (value == null)
             {
-                return default;
+                return DateTime.Now;
             }
             DateTime date = (DateTime)value;
             return date.Equals(default) ? DateTime.Now : date;
