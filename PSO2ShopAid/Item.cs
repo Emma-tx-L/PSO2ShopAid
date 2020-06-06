@@ -435,9 +435,9 @@ namespace PSO2ShopAid
             NotifyPropertyChanged(nameof(TimeSinceLastAvailable));
         }
 
-        public void ChangeEncounterPrice(Encounter encounter, Price price)
+        public void RemoveEncounter(Encounter toRemove)
         {
-            encounter.ChangePrice(price);
+            Encounters = new ObservableCollection<Encounter>(Encounters.Except(new List<Encounter>() { toRemove }));
             RefreshInvestmentsList();
             this.NotifyChanged();
         }
@@ -449,7 +449,6 @@ namespace PSO2ShopAid
                 return JsonConvert.SerializeObject(this);
             }
             catch { return base.ToString(); }
-
         }
     }
 

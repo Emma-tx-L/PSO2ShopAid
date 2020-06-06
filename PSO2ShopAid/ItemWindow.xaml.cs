@@ -102,7 +102,7 @@ namespace PSO2ShopAid
         {
             Button button = sender as Button;
             Encounter encounter = button.DataContext as Encounter;
-            MessageBox.Show($"Clicked delete for {encounter.price}, {encounter.date}");
+            item.RemoveEncounter(encounter);
         }
 
         private void UpdateEncounterPrice(object sender, RoutedEventArgs e)
