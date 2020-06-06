@@ -64,6 +64,7 @@ namespace PSO2ShopAid
                 catch (Exception)
                 {
                     MessageBox.Show("Please enter a valid price.");
+                    return;
                 }
             }
 

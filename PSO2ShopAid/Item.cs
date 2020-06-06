@@ -508,7 +508,7 @@ namespace PSO2ShopAid
                 }
 
                 input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
-                float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+                float priceValue = float.Parse(input, NumberStyles.Any, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
 
                 return new Price(priceValue, suffix);
             }
@@ -535,7 +535,7 @@ namespace PSO2ShopAid
             }
 
             input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
-            float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+            float priceValue = float.Parse(input, NumberStyles.Any, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
 
             return new Price(priceValue, suffix);
         }

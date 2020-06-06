@@ -195,8 +195,9 @@ namespace PSO2ShopAid
             {
                 Price price = priceString.ToPrice(suffix);
                 item.Log(price);
+                Item_NewPrice.Clear();
             }
-            catch
+            catch (Exception)
             {
                 MessageBox.Show("Please enter a valid price.");
             }
@@ -221,6 +222,7 @@ namespace PSO2ShopAid
             {
                 Price price = priceString.ToPrice(suffix);
                 item.Purchase(price);
+                Item_NewPrice.Clear();
             }
             catch
             {
@@ -228,7 +230,6 @@ namespace PSO2ShopAid
             }
 
              await Task.Delay(sameActionTimeout);
-
             isBuying = false;
         }
 
@@ -254,6 +255,7 @@ namespace PSO2ShopAid
             {
                 Price price = priceString.ToPrice(suffix);
                 item.Sell(price);
+                Item_NewPrice.Clear();
             }
             catch
             {
