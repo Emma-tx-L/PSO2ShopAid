@@ -517,5 +517,27 @@ namespace PSO2ShopAid
                 return new Price(0);
             }
         }
+
+        public static Price ToPrice(this string input, PriceSuffix suffix)
+        {
+            whiteSpace.Replace(input, input);
+            input = input.ToLower();
+
+            if (input.EndsWith("k"))
+            {
+                suffix = PriceSuffix.k;
+                input.Replace("k", "");
+            }
+            else if (input.EndsWith("m"))
+            {
+                suffix = PriceSuffix.m;
+                input.Replace("m", "");
+            }
+
+            input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
+            float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+
+            return new Price(priceValue, suffix);
+        }
     }
 }

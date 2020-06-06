@@ -58,13 +58,12 @@ namespace PSO2ShopAid
             {
                 try
                 {
-                    Price price = new Price(float.Parse(priceString), suffix);
+                    Price price = priceString.ToPrice(suffix);
                     Shop.AddNewItem(name, price, isPurchase, hex);
                 }
-                catch (Exception err)
+                catch (Exception)
                 {
                     MessageBox.Show("Please enter a valid price.");
-                    Console.WriteLine(err);
                 }
             }
 
