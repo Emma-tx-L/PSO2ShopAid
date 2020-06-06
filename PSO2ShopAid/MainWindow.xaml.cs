@@ -87,12 +87,18 @@ namespace PSO2ShopAid
             {
                 Item item = (Item)TrackedItems.SelectedItem;
 
+                if (item == null)
+                {
+                    return;
+                }
+
                 if (OpenItemWindows.Contains(item.NameEN))
                 {
                     return;
                 }
 
                 ItemWindow itemWindow = new ItemWindow(item, this);
+                itemWindow.Owner = Application.Current.MainWindow;
                 OpenItemWindows.Add(item.NameEN);
                 itemWindow.Show();
             }

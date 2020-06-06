@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Linq;
+using System.Windows.Media;
 
 namespace PSO2ShopAid
 {
@@ -56,6 +57,18 @@ namespace PSO2ShopAid
             item.AddRevivalDate((DateTime)datePicker.SelectedDate);
         }
 
+        private void ChangeEncounterDate(object sender, SelectionChangedEventArgs e)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            DatePicker datePicker = sender as DatePicker;
+
+            MessageBox.Show($"Selected Date is {datePicker.SelectedDate}");
+        }
+
         private void DeleteRevivalDate(object sender, RoutedEventArgs e)
         {
             List<DateTime> toDelete = RevivalsListView.SelectedItems.Cast<DateTime>().ToList();
@@ -81,6 +94,23 @@ namespace PSO2ShopAid
             {
                 Keyboard.ClearFocus();
             }
+        }
+
+        private void DeleteEncounter(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Encounter encounter = button.DataContext as Encounter;
+            MessageBox.Show($"Clicked delete for {encounter.price}, {encounter.date}");
+        }
+
+        private void UpdateEncounterPrice(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Encounter encounter = button.DataContext as Encounter;
+            TextBox textBox = VisualTreeHelper.GetChild(button.Parent, 1) as TextBox;
+            Price price = textBox.Text.ToPrice();
+            encounter.price = price;
+            MessageBox.Show($"Updated {encounter.price.RawPrice} to {price.RawPrice}");
         }
 
         private async void LogEncounter(object sender, RoutedEventArgs e)

@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace PSO2ShopAid
 {
@@ -50,6 +52,10 @@ namespace PSO2ShopAid
         private ObservableCollection<Investment> _investments;
         private ObservableCollection<Encounter> _encounters;
 
+        public ObservableCollection<PriceSuffix> PriceSuffixes
+        {
+            get => new ObservableCollection<PriceSuffix>((PriceSuffix[])Enum.GetValues(typeof(PriceSuffix)));
+        }
         public string NameEN { get => _nameEN; set { _nameEN = value; NotifyPropertyChanged(); } }
         public string NameJP { get => _nameJP; set { _nameJP = value; NotifyPropertyChanged(); } }
         public DateTime ReleaseDate
@@ -449,6 +455,39 @@ namespace PSO2ShopAid
             foreach (PropertyInfo property in properties)
             {
                 investment.NotifyPropertyChanged(property.Name);
+            }
+        }
+
+        public static Price ToPrice(this string input)
+        {
+            try
+            {
+                Regex.Replace(input, @"\s+", "");
+                bool isShortForm = false;
+                PriceSuffix suffix = PriceSuffix.m;
+
+                if (input.EndsWith("k"))
+                {
+                    isShortForm = true;
+                    suffix = PriceSuffix.k;
+                    input.Replace("k", "");
+                }
+                else if (input.EndsWith("m"))
+                {
+                    isShortForm = true;
+                    suffix = PriceSuffix.m;
+                    input.Replace("m", "");
+                }
+
+                input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
+                float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
+
+                Price price = isShortForm ? new Price(priceValue, suffix) : new Price(priceValue);
+                return price;
+            }
+            catch
+            {
+                return new Price(0);
             }
         }
     }

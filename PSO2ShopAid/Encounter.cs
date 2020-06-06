@@ -3,14 +3,8 @@ using System;
 
 namespace PSO2ShopAid
 {
-    public class Encounter : IComparable<Encounter>
+    public class Encounter : BaseViewModel, IComparable<Encounter>
     {
-        public Price price { get; set; }
-        public DateTime date { get; set; }
-        public bool IsSell { get; set; }
-        public Investment Purchase { get; set; }
-        public bool DidPurchase { get { return Purchase != null; } }
-
         public Encounter(Price currPrice, DateTime currDate, bool sold = false, Investment purchase = null)
         {
             price = currPrice;
@@ -35,6 +29,41 @@ namespace PSO2ShopAid
             Purchase = purchase;
             IsSell = sold;
         }
+
+        private Price _price;
+        private DateTime _date;
+        private Investment _purchase;
+
+        public Price price
+        {
+            get => _price;
+            set
+            {
+                _price = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public DateTime date
+        {
+            get => _date;
+            set
+            {
+                _date = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public bool IsSell { get; set; }
+        public Investment Purchase
+        {
+            get => _purchase;
+            set
+            {
+                _purchase = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(DidPurchase));
+            }
+        }
+        public bool DidPurchase { get { return Purchase != null; } }
 
         public int CompareTo(Encounter other)
         {
