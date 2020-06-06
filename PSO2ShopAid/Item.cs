@@ -494,18 +494,15 @@ namespace PSO2ShopAid
             {
                 whiteSpace.Replace(input, input);
                 input = input.ToLower();
-                bool isShortForm = false;
-                PriceSuffix suffix = PriceSuffix.m;
+                PriceSuffix suffix = PriceSuffix.k;
 
                 if (input.EndsWith("k"))
                 {
-                    isShortForm = true;
                     suffix = PriceSuffix.k;
                     input.Replace("k", "");
                 }
                 else if (input.EndsWith("m"))
                 {
-                    isShortForm = true;
                     suffix = PriceSuffix.m;
                     input.Replace("m", "");
                 }
@@ -513,8 +510,7 @@ namespace PSO2ShopAid
                 input = new string(input.Where(c => char.IsDigit(c) || c.Equals('.') || c.Equals(',')).ToArray()); // allow only numbers, commas, decimals
                 float priceValue = float.Parse(input, NumberStyles.AllowThousands, CultureInfo.InvariantCulture); // parse with decimals and decimal separators
 
-                Price price = isShortForm ? new Price(priceValue, suffix) : new Price(priceValue);
-                return price;
+                return new Price(priceValue, suffix);
             }
             catch
             {
