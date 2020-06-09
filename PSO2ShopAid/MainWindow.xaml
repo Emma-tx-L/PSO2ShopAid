@@ -12,6 +12,7 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="Ink Free"
+        Icon="Resources/luci-icon.ico"
         Title="PSO2 Shop Aid" Height="800" Width="800">
     <Window.Resources>
         <!-- Converters -->
